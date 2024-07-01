@@ -1,0 +1,5 @@
+input*.txt
+lex.yy.c
+lexer
+parser.tab.*
+parser

@@ -1,0 +1,48 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "flex",
+            "type": "shell",
+            "command": "flex",
+            "args": [
+                "lexer.l"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "gcc",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "lex.yy.c",
+                "-o",
+                "lexer",
+                "-lfl"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "command": "./lexer",
+            "args": [
+                "<",
+                "input.txt"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
