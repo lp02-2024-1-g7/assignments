@@ -12,9 +12,9 @@ Para ayudar al estadístico a trabajar con estas pruebas, el lenguaje de program
 
 
 ## Requisitos
-- FLEX
-- GCC
-- Bison
+- FLEX: Generador de analizadores léxicos LEX
+- GCC: Compilador de C
+- Bison: Generador de analizadores sintácticos compatible con YACC
 - Un editor de texto (recomendado Visual Studio Code)
 
 ## Instalación WSL (Windows Subsystem for Linux)
@@ -43,10 +43,10 @@ sudo apt-get install bison
     Usa Bison para generar el archivo `gramamr.tab.c` y `gramamr.tab.h` a partir del archivo `gramamr.y`.
 
     ```sh
-    bison -d grammar.y
+    bison -d grammar.y -Wcounterexamples
     ```
 
-    donde `-d` indica que se debe generar el archivo de cabecera `gramamr.tab.h`.
+    donde `-d` indica que se debe generar el archivo de cabecera `gramamr.tab.h` y `-Wcounterexamples` indica que se deben generar contraejemplos para las reglas de la gramática.
 
 3. **Compilar el código generado**:
     Usa GCC para compilar los archivos generados `lex.yy.c` y `gramamr.tab.c` y crear un ejecutable llamado `parser`.
@@ -54,6 +54,8 @@ sudo apt-get install bison
     ```sh
     gcc lex.yy.c grammar.tab.c -o parser -lfl
     ```
+
+    donde `lex.yy.c` y `grammar.tab.c` son los archivos generados por FLEX y Bison, respectivamente, y `-lfl` indica que se debe enlazar con la biblioteca de FLEX.
 
 ## Ejecución
 1. **Crear el archivo de entrada**:
@@ -247,70 +249,7 @@ Cleanup: popping nterm program ()
 La salida final indica que el analizador léxico ha terminado de analizar el archivo de entrada y ha limpiado la pila.
 
 ## Especificación de patrónes léxicos
-Para el análisis léxico de nuestro lenguaje de programación, se han definido los siguientes patrones léxicos en el archivo `lexer.l`:
-
-```lex
-%{
-#include "grammar.tab.h"
-#include <stdio.h>
-#include <stdlib.h>
-%}
-
-/*** Definición de patrones utilizando expresiones regulares ***/
-digit      [0-9]
-letter     [a-zA-Z_]
-identifier {letter}({letter}|{digit})*
-number     {digit}+(\.{digit}+)?
-whitespace [ \t\n\r]+
-
-/*** Reglas de sustitución ***/
-%%
-"int"       { return INT; }         /* Tipo de dato entero */
-"float"     { return FLOAT; }       /* Tipo de dato flotante */
-"if"        { return IF; }          /* Estructura de selección */
-"else"      { return ELSE; }        /* Parte de la estructura de selección */
-"for"       { return FOR; }         /* Estructura de iteración */
-"while"     { return WHILE; }       /* Estructura de iteración */
-"print"     { return PRINT; }       /* Función de impresión */
-"read"      { return READ; }        /* Función de lectura */
-
-"="         { return ASSIGN; }      /* Operador de asignación */
-";"         { return SEMICOLON; }   /* Punto y coma */
-"("         { return LPAREN; }      /* Paréntesis izquierdo */
-")"         { return RPAREN; }      /* Paréntesis derecho */
-"{"         { return LBRACE; }      /* Llave izquierda */
-"}"         { return RBRACE; }      /* Llave derecha */
-"<"         { return LT; }          /* Operador menor que */
-">"         { return GT; }          /* Operador mayor que */
-"+"         { return PLUS; }        /* Operador de suma */
-"-"         { return MINUS; }       /* Operador de resta */
-"*"         { return MULT; }        /* Operador de multiplicación */
-"/"         { return DIV; }         /* Operador de división */
-"=="        { return EQ; }          /* Operador igual a */
-"!="        { return NEQ; }         /* Operador diferente a */
-"<="        { return LEQ; }         /* Operador menor o igual que */
-">="        { return GEQ; }         /* Operador mayor o igual que */
-"\""        { return QUOTE; }       /* Comillas dobles */
-"["         { return LBRACKET; }    /* Corchete izquierdo */
-"]"         { return RBRACKET; }    /* Corchete derecho */
-","         { return COMMA; }       /* Coma */
-
-{identifier}   { yylval.str = strdup(yytext); return IDENTIFIER; }          /* Identificador */
-{number}       { yylval.num = atof(yytext); return NUMBER; }                /* Número */
-{whitespace}   { /* Ignorar espacios en blanco */ }                         /* Espacios en blanco */
-"//".*         { /* Ignorar comentarios de una línea */ }                   /* Comentarios de una línea */
-.              { printf("Unexpected character: %c\n", *yytext); exit(1); }  /* Caracter inesperado */
-
-%%
-/*** Función de cierre ***/
-int yywrap(void) {
-    return 1;
-}
-```
-
-¡Felicidades por haber logrado el análisis correcto del archivo de entrada! A continuación, se actualiza la sección de la especificación de BNF de la gramática en tu documento para que use EBNF:
-
-Claro, aquí está la sección actualizada con la especificación EBNF de la gramática ISO-14977:
+Para el análisis léxico de nuestro lenguaje de programación, se ha utilizado el analizador del Taller 01, el cual se ha modificado para que cumpla con los requerimientos del Taller 02.
 
 ## Especificación EBNF de la gramática ISO-14977
 
