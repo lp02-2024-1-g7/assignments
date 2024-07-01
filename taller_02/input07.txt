@@ -1,0 +1,22 @@
+// Variables auxiliares
+int i;
+int j;
+
+// Calcular el número total de rachas en el modelo
+int R_mod = 0;
+for (i = 0; i < 3; i = i + 1) {
+    for (j = 0; j < 3; j = j + 1) {
+        R_mod = R_mod + R_ij[i][j];
+    }
+}
+print(R_mod);
+
+// Calcular el promedio de rachas por celda (simplificado para el ejemplo)
+float P_ij[3][3];
+for (i = 0; i < 3; i = i + 1) {
+    for (j = 0; j < 3; j = j + 1) {
+        P_ij[i][j] = cast(float,R_ij[i][j]) / cast(float,matrix[i][j]);
+        print(P_ij[i][j]);
+    }
+}
+

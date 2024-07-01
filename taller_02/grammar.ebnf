@@ -1,0 +1,55 @@
+program = declarations, statements ;
+
+declarations = { declaration } ;
+
+declaration = type, identifier, ";" 
+            | type, identifier, "=", expression, ";" 
+            | type, identifier, array_initialization, ";" ;
+
+type = "int" | "float" ;
+
+array_initialization = "[", number, "]", "[", number, "]", "=", "{", array_elements, "}" ;
+
+array_elements = "{", numbers, "}" 
+               | array_elements, ",", "{", numbers, "}" ;
+
+numbers = number 
+        | numbers, ",", number ;
+
+expression = number 
+           | identifier 
+           | expression, "+", expression 
+           | expression, "-", expression 
+           | expression, "*", expression 
+           | expression, "/", expression 
+           | "(", expression, ")" 
+           | expression, "<", expression 
+           | expression, ">", expression 
+           | expression, "==", expression 
+           | expression, "!=", expression 
+           | expression, "<=", expression 
+           | expression, ">=" ;
+
+statements = { statement } ;
+
+statement = assignment_statement 
+          | if_statement 
+          | while_statement 
+          | for_statement 
+          | print_statement ;
+
+assignment_statement = identifier, "=", expression, ";" ;
+
+loop_assignment_statement = identifier, "=", expression ;
+
+if_statement = "if", "(", expression, ")", "{", statements, "}", [ "else", "{", statements, "}" ] ;
+
+while_statement = "while", "(", expression, ")", "{", statements, "}" ;
+
+for_statement = "for", "(", loop_assignment_statement, ";", expression, ";", loop_assignment_statement, ")", "{", statements, "}" ;
+
+print_statement = "print", "(", expression, ")", ";" ;
+
+number = ? regular expression for number ? ;
+
+identifier = ? regular expression for identifier ? ;

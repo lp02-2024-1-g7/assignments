@@ -1,0 +1,59 @@
+<program> ::= <declarations> <statements>
+
+<declarations> ::= <declaration> <declarations>
+                 | ε
+
+<declaration> ::= <type> <IDENTIFIER> ";"
+                | <type> <IDENTIFIER> "=" <expression> ";"
+                | <type> <IDENTIFIER> <array_initialization> ";"
+
+<type> ::= "int"
+         | "float"
+
+<array_initialization> ::= "[" <NUMBER> "]" "[" <NUMBER> "]" "=" "{" <array_elements> "}"
+
+<array_elements> ::= "{" <numbers> "}"
+                   | <array_elements> "," "{" <numbers> "}"
+
+<numbers> ::= <NUMBER>
+            | <numbers> "," <NUMBER>
+
+<expression> ::= <NUMBER>
+               | <IDENTIFIER>
+               | <expression> "+" <expression>
+               | <expression> "-" <expression>
+               | <expression> "*" <expression>
+               | <expression> "/" <expression>
+               | "(" <expression> ")"
+               | <expression> "<" <expression>
+               | <expression> ">" <expression>
+               | <expression> "==" <expression>
+               | <expression> "!=" <expression>
+               | <expression> "<=" <expression>
+               | <expression> ">=" <expression>
+
+<statements> ::= <statement> <statements>
+               | ε
+
+<statement> ::= <assignment_statement>
+              | <if_statement>
+              | <while_statement>
+              | <for_statement>
+              | <print_statement>
+
+<assignment_statement> ::= <IDENTIFIER> "=" <expression> ";"
+
+<loop_assignment_statement> ::= <IDENTIFIER> "=" <expression>
+
+<if_statement> ::= "if" "(" <expression> ")" "{" <statements> "}" "else" "{" <statements> "}"
+                 | "if" "(" <expression> ")" "{" <statements> "}"
+
+<while_statement> ::= "while" "(" <expression> ")" "{" <statements> "}"
+
+<for_statement> ::= "for" "(" <loop_assignment_statement> ";" <expression> ";" <loop_assignment_statement> ")" "{" <statements> "}"
+
+<print_statement> ::= "print" "(" <expression> ")" ";"
+
+<NUMBER> ::= /* expresión regular para número */
+
+<IDENTIFIER> ::= /* expresión regular para identificador */

@@ -1,0 +1,10 @@
+// Programa de calculo de promedio
+float mean = 0;
+// Valores
+int values[5] = {1, 2, 3, 4, 5};
+// Sumar valores
+for (int i = 0; i < 5; i=i+1) {
+    mean = mean + values[i];
+}
+// Calcular promedio
+mean = mean / 5;

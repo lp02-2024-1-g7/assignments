@@ -1,0 +1,9 @@
+// Calcular el total de datos por bloque
+int T_bi[3];
+for (i = 0; i < 3; i = i + 1) {
+    T_bi[i] = 0;
+    for (j = 0; j < 3; j = j + 1) {
+        T_bi[i] = T_bi[i] + matrix[i][j];
+    }
+    print(T_bi[i]);
+}

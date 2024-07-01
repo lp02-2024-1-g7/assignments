@@ -5,8 +5,8 @@
 
 void yyerror(const char *s);
 int yylex(void);
-extern int yylineno;  // Para rastreo de líneas
-extern char *yytext;  // Para rastreo de texto
+extern int yylineno;
+extern char *yytext;
 
 typedef union {
     char *str;
@@ -14,7 +14,7 @@ typedef union {
 } YYSTYPE;
 
 #define YYSTYPE_IS_DECLARED 1
-#define YYDEBUG 1  // Habilitar la depuración
+#define YYDEBUG 1
 %}
 
 %union {
@@ -24,12 +24,14 @@ typedef union {
 
 %token <str> IDENTIFIER
 %token <num> NUMBER
-%token INT FLOAT IF ELSE FOR WHILE PRINT READ
+%token INT FLOAT IF ELSE FOR WHILE PRINT READ CAST
 %token ASSIGN SEMICOLON LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
-%token LT GT PLUS MINUS MULT DIV EQ NEQ LEQ GEQ COMMA QUOTE
+%token LT GT PLUS MINUS MULT DIV EQ NEQ LEQ GEQ COMMA QUOTE CAST_FUNC
+%token END_PROGRAM
 
 %type <num> expression
 %type <str> assignment_statement
+%type <str> loop_assignment_statement
 %type <str> declaration_statement
 %type <str> declarations
 %type <str> statements
@@ -43,6 +45,7 @@ typedef union {
 %type <str> array_elements
 %type <str> numbers
 %type <str> type
+%type <str> array_declaration
 
 %left LT GT LEQ GEQ EQ NEQ
 %left PLUS MINUS
@@ -62,7 +65,8 @@ declarations:
 declaration_statement:
     type IDENTIFIER SEMICOLON { $$ = strdup("variable declaration"); }
     | type IDENTIFIER ASSIGN expression SEMICOLON { $$ = strdup("variable assignment declaration"); }
-    | type IDENTIFIER array_initialization SEMICOLON { $$ = strdup("array declaration"); }
+    | type IDENTIFIER array_declaration SEMICOLON { $$ = strdup("array declaration"); }
+    | type IDENTIFIER array_initialization SEMICOLON { $$ = strdup("array initialization"); }
     ;
 
 type:
@@ -70,13 +74,19 @@ type:
     | FLOAT { $$ = strdup("float"); }
     ;
 
+array_declaration:
+    LBRACKET NUMBER RBRACKET { $$ = strdup("array declaration"); }
+    | LBRACKET NUMBER RBRACKET LBRACKET NUMBER RBRACKET { $$ = strdup("2D array declaration"); }
+    ;
+
 array_initialization:
-    LBRACKET NUMBER RBRACKET LBRACKET NUMBER RBRACKET ASSIGN LBRACE array_elements RBRACE { $$ = strdup("array initialization"); }
+    LBRACKET NUMBER RBRACKET ASSIGN LBRACE numbers RBRACE { $$ = strdup("array initialization"); }
+    | LBRACKET NUMBER RBRACKET LBRACKET NUMBER RBRACKET ASSIGN LBRACE array_elements RBRACE { $$ = strdup("2D array initialization"); }
     ;
 
 array_elements:
     LBRACE numbers RBRACE { $$ = strdup("array elements"); }
-    | array_elements COMMA LBRACE numbers RBRACE { $$ = strcat($1, ", array elements"); }
+    | array_elements COMMA LBRACE numbers RBRACE { char *temp = malloc(strlen($1) + strlen(", array elements") + 1); strcpy(temp, $1); strcat(temp, ", array elements"); $$ = temp; }
     ;
 
 numbers:
@@ -85,7 +95,7 @@ numbers:
     ;
 
 statements:
-    statement statements { char *temp = malloc(strlen($1) + strlen($2) + 1); strcpy(temp, $1); strcat(temp, $2); $$ = temp; }
+    statement statements { char *temp = malloc(strlen($1) + strlen($2) + 1); strcpy(temp, $1); strcat(temp, $2); $$ = temp; }        
     | /* empty */ { $$ = strdup(""); }
     ;
 
@@ -99,6 +109,13 @@ statement:
 
 assignment_statement:
     IDENTIFIER ASSIGN expression SEMICOLON { $$ = strdup("assignment statement"); }
+    | IDENTIFIER LBRACKET expression RBRACKET ASSIGN expression SEMICOLON { $$ = strdup("array element assignment statement"); }     
+    | IDENTIFIER LBRACKET expression RBRACKET LBRACKET expression RBRACKET ASSIGN expression SEMICOLON { $$ = strdup("2D array element assignment statement"); }
+    ;
+
+loop_assignment_statement:
+    type IDENTIFIER ASSIGN expression { $$ = strdup("loop assignment statement"); }
+    | IDENTIFIER ASSIGN expression { $$ = strdup("loop assignment statement"); }
     ;
 
 if_statement:
@@ -111,7 +128,7 @@ while_statement:
     ;
 
 for_statement:
-    FOR LPAREN assignment_statement expression SEMICOLON assignment_statement RPAREN LBRACE statements RBRACE { $$ = strdup("for statement"); }
+    FOR LPAREN loop_assignment_statement SEMICOLON expression SEMICOLON loop_assignment_statement RPAREN LBRACE statements RBRACE { $$ = strdup("for statement"); }
     ;
 
 print_statement:
@@ -132,15 +149,19 @@ expression:
     | expression NEQ expression { $$ = $1 != $3; }
     | expression LEQ expression { $$ = $1 <= $3; }
     | expression GEQ expression { $$ = $1 >= $3; }
+    | CAST_FUNC LPAREN type COMMA expression RPAREN { $$ = $5; }  // Type casting
+    | IDENTIFIER LBRACKET expression RBRACKET { $$ = 0; }  // Array access
+    | IDENTIFIER LBRACKET expression RBRACKET LBRACKET expression RBRACKET { $$ = 0; }  // 2D Array access
     ;
 
 %%
 
 void yyerror(const char *s) {
     fprintf(stderr, "Error at line %d: %s (text: %s)\n", yylineno, s, yytext);
+    exit(1);  // Parar la ejecución en caso de error
 }
 
 int main(void) {
-    yydebug = 1;  // Habilitar la depuración
+    yydebug = 1;
     return yyparse();
 }

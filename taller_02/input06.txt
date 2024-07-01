@@ -1,0 +1,13 @@
+// Variables auxiliares
+int i;
+int j;
+
+// Calcular el total de datos del modelo
+int T_mod = 0;
+for (i = 0; i < 3; i = i + 1) {
+    for (j = 0; j < 3; j = j + 1) {
+        T_mod = T_mod + matrix[i][j];
+    }
+}
+print(T_mod);
+
