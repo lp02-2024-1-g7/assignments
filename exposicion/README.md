@@ -189,7 +189,7 @@ Para soportar actores remotos, se utiliza RPC, permitiendo que los actores enví
 ### **Diapositiva 21: Ejemplo de un Actor Simple en Golang (Fredy)**
 
 Creamos un actor y llamamos al método Receive, luego el método Send, permite a este actor recibir mensajes enviados por otros actores
-```
+```go
 type Actor struct {
 
 inbox chan string
