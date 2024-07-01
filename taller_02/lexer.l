@@ -2,6 +2,12 @@
 #include "grammar.tab.h"
 %}
 
+DIGIT               [0-9]
+LETTER              [a-zA-Z_]
+IDENTIFIER          {LETTER}({LETTER}|{DIGIT})*
+FLOAT_NUMBER        ({DIGIT}+"."{DIGIT}*|{DIGIT}*"."{DIGIT}+)
+INTEGER             {DIGIT}+
+
 %%
 
 "//".*  {/* Ignore single-line comments */}
@@ -18,10 +24,9 @@
 "read"                 { return READ; }
 "cast"                 { return CAST_FUNC; }
 
-[a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return IDENTIFIER; }
-[0-9]+"."[0-9]*        { yylval.num = atof(yytext); return NUMBER; }
-[0-9]*"."[0-9]+        { yylval.num = atof(yytext); return NUMBER; }
-[0-9]+                 { yylval.num = atoi(yytext); return NUMBER; }
+{IDENTIFIER}           { yylval.str = strdup(yytext); return IDENTIFIER; }
+{FLOAT_NUMBER}         { yylval.num = atof(yytext); return NUMBER; }
+{INTEGER}              { yylval.num = atoi(yytext); return NUMBER; }
 
 "="                    { return ASSIGN; }
 ";"                    { return SEMICOLON; }
