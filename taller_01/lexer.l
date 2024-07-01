@@ -7,6 +7,12 @@ extern FILE *yyin;
 
 %}
 
+DIGIT               [0-9]
+LETTER              [a-zA-Z_]
+IDENTIFIER          {LETTER}({LETTER}|{DIGIT})*
+FLOAT_NUMBER        ({DIGIT}+"."{DIGIT}*|{DIGIT}*"."{DIGIT}+)
+INTEGER             {DIGIT}+
+
 %%
 
 "//".*               {/* Ignore single-line comments */}
@@ -22,10 +28,9 @@ extern FILE *yyin;
 "read"               { printf("READ\n"); }
 "cast"               { printf("CAST_FUNC\n"); }
 
-[a-zA-Z_][a-zA-Z0-9_]* { printf("IDENTIFIER(%s)\n", yytext); }
-[0-9]+"."[0-9]*      { printf("NUMBER(%s)\n", yytext); }
-[0-9]*"."[0-9]+      { printf("NUMBER(%s)\n", yytext); }
-[0-9]+               { printf("NUMBER(%s)\n", yytext); }
+{IDENTIFIER}         { printf("IDENTIFIER(%s)\n", yytext); }
+{FLOAT_NUMBER}       { printf("NUMBER(%s)\n", yytext); }
+{INTEGER}            { printf("NUMBER(%s)\n", yytext); }
 
 "="                  { printf("ASSIGN\n"); }
 ";"                  { printf("SEMICOLON\n"); }

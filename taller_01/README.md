@@ -126,9 +126,11 @@ sudo apt-get install gcc
    ./lexer < input.txt
    ```
 
-## Explicación del Propósito del Programa y su Funcionamiento
+## Propósito del Programa
 
-El propósito de este programa es analizar un archivo de entrada en el que se define un lenguaje de programación de propósito específico diseñado para resolver el problema de dos vías de clasificación utilizando conceptos de rachas. El analizador léxico se encarga de dividir el código fuente en tokens que representan las diferentes partes del lenguaje, facilitando su posterior análisis y procesamiento.
+El propósito de este programa es analizar un archivo en el que se define un lenguaje de programación para resolver el problema de dos vías de clasificación utilizando conceptos de teoria de rachas.
+
+Revisar [Marco Teórico](./marcoteorico.md) para más información.
 
 ### Operaciones Específicas
 
@@ -139,7 +141,144 @@ El propósito de este programa es analizar un archivo de entrada en el que se de
 - **Calcular el número total de rachas en el modelo (`R_mod`)**: Suma del número de rachas en todas las celdas.
 - **Calcular el promedio de rachas por celda (`P_ij`)**: División del número de rachas en cada celda por el valor en la celda correspondiente de la matriz.
 
-Estos cálculos ilustran cómo se pueden aplicar los conceptos de rachas al análisis de datos estructurados en matrices, permitiendo extraer métricas y estadísticas útiles para el problema de dos vías de clasificación.
+## Vocabulario del Lenguaje
+
+El vocabulario completo que reconoce el lenguaje de programación de propósito específico incluye palabras clave, identificadores, números, operadores y símbolos. A continuación se detallan los elementos que forman parte del vocabulario del lenguaje:
+
+- **Palabras clave:**
+  - `begin`: Inicio del programa.
+  - `end`: Fin del programa.
+  - `int`: Tipo de dato entero.
+  - `float`: Tipo de dato flotante.
+  - `if`: Estructura condicional.
+  - `else`: Estructura condicional.
+  - `for`: Estructura de repetición.
+  - `while`: Estructura de repetición.
+  - `print`: Función de impresión.
+  - `read`: Función de lectura.
+  - `cast`: Función de conversión de tipo.
+
+- **Operadores y símbolos:**
+  - `=`
+  - `;`
+  - `(`
+  - `)`
+  - `{`
+  - `}`
+  - `[`
+  - `]`
+  - `<`
+  - `>`
+  - `+`
+  - `-`
+  - `*`
+  - `/`
+  - `==`
+  - `!=`
+  - `<=`
+  - `>=`
+  - `,`
+  - `"`
+
+### Categorías Léxicas
+
+Las categorías léxicas necesarias para la construcción del lenguaje de programación de propósito específico son las siguientes:
+
+- **Palabras clave:** Son las palabras reservadas que tienen un significado específico en el lenguaje y no pueden ser utilizadas como identificadores.
+  - `BEGIN_PROGRAM`
+  - `END_PROGRAM`
+  - `INT`
+  - `FLOAT`
+  - `IF`
+  - `ELSE`
+  - `FOR`
+  - `WHILE`
+  - `PRINT`
+  - `READ`
+  - `CAST_FUNC`
+
+- **Identificadores:** Son los nombres de variables definidos por el usuario.
+  - `IDENTIFIER`
+
+- **Números:**
+  - `NUMBER`
+
+- **Operadores aritméticos:** Son los operadores utilizados para realizar operaciones matemáticas.
+  - `PLUS`
+  - `MINUS`
+  - `MULT`
+  - `DIV`
+
+- **Operadores de comparación:** Son los operadores utilizados para comparar valores.
+  - `LT`
+  - `GT`
+  - `EQ`
+  - `NEQ`
+  - `LEQ`
+  - `GEQ`
+
+- **Símbolos:** Son los símbolos utilizados para delimitar bloques de código o expresiones.
+  - `ASSIGN`
+  - `SEMICOLON`
+  - `LPAREN`
+  - `RPAREN`
+  - `LBRACE`
+  - `RBRACE`
+  - `LBRACKET`
+  - `RBRACKET`
+  - `COMMA`
+  - `QUOTE`
+
+### Patrones Basados en Expresiones Regulares
+
+Los patrones basados en expresiones regulares se utilizan para identificar las diferentes categorías léxicas en el código fuente. A continuación se presentan los patrones utilizados en el analizador léxico, así como sus definiciones y extensiones regulares:
+
+- **Definiciones:**
+  - `DIGIT`: `[0-9]`
+  - `LETTER`: `[a-zA-Z_]`
+  - `IDENTIFIER`: `{LETTER}({LETTER}|{DIGIT})*`
+  - `FLOAT_NUMBER`: `({DIGIT}+"."{DIGIT}*|{DIGIT}*"."{DIGIT}+)`
+  - `INTEGER`: `{DIGIT}+`
+
+- **Patrones Regulares:**
+  - `IDENTIFIER`: `[a-zA-Z_][a-zA-Z0-9_]*`
+  - `FLOAT_NUMBER`: `([0-9]+"."[0-9]*|[0-9]*"."[0-9]+)`
+  - `INTEGER`: `[0-9]+`
+  - `PLUS`: `\+`
+  - `MINUS`: `\-`
+  - `MULT`: `\*`
+  - `DIV`: `\/`
+  - `LT`: `<`
+  - `GT`: `>`
+  - `EQ`: `==`
+  - `NEQ`: `!=`
+  - `LEQ`: `<=`
+  - `GEQ`: `>=`
+  - `ASSIGN`: `=`
+  - `SEMICOLON`: `;`
+  - `LPAREN`: `\(`
+  - `RPAREN`: `\)`
+  - `LBRACE`: `\{`
+  - `RBRACE`: `\}`
+  - `LBRACKET`: `\[`
+  - `RBRACKET`: `\]`
+  - `COMMA`: `,`
+  - `QUOTE`: `\"`
+  - `CAST_FUNC`: `cast`
+  - `BEGIN_PROGRAM`: `begin`
+  - `END_PROGRAM`: `end`
+  - `INT`: `int`
+  - `FLOAT`: `float`
+  - `IF`: `if`
+  - `ELSE`: `else`
+  - `FOR`: `for`
+  - `WHILE`: `while`
+  - `PRINT`: `print`
+  - `READ`: `read`
+  - `COMMENT`: `//.*`
+  - `WHITESPACE`: `[ \t\r\n]+`
+
+Estas definiciones y patrones permiten al analizador léxico identificar y clasificar correctamente cada componente del código fuente del lenguaje de programación de propósito específico, facilitando así su posterior análisis sintáctico y semántico.
 
 ## Referencias
 [^1]: [GNU Flex manual](https://ftp.gnu.org/old-gnu/Manuals/flex-2.5.4/html_mono/flex.html)
