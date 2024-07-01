@@ -1,3 +1,5 @@
+begin
+
 // Calcular el total de datos por bloque
 int T_bi[3];
 for (i = 0; i < 3; i = i + 1) {
@@ -7,3 +9,5 @@ for (i = 0; i < 3; i = i + 1) {
     }
     print(T_bi[i]);
 }
+
+end

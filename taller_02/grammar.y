@@ -27,7 +27,7 @@ typedef union {
 %token INT FLOAT IF ELSE FOR WHILE PRINT READ CAST
 %token ASSIGN SEMICOLON LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
 %token LT GT PLUS MINUS MULT DIV EQ NEQ LEQ GEQ COMMA QUOTE CAST_FUNC
-%token END_PROGRAM
+%token BEGIN_PROGRAM END_PROGRAM
 
 %type <num> expression
 %type <str> assignment_statement
@@ -54,7 +54,7 @@ typedef union {
 %%
 
 program:
-    declarations statements { printf("Program parsed successfully.\n"); }
+    BEGIN_PROGRAM declarations statements END_PROGRAM { printf("Program parsed successfully.\n"); }
     ;
 
 declarations:

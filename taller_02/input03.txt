@@ -1,3 +1,5 @@
+begin
+
 // Programa de calculo de promedio
 float mean = 0;
 // Valores
@@ -8,3 +10,5 @@ for (int i = 0; i < 5; i=i+1) {
 }
 // Calcular promedio
 mean = mean / 5;
+
+end
