@@ -310,7 +310,9 @@ int yywrap(void) {
 
 ¡Felicidades por haber logrado el análisis correcto del archivo de entrada! A continuación, se actualiza la sección de la especificación de BNF de la gramática en tu documento para que use EBNF:
 
-## Especificación EBNF de la gramática
+Claro, aquí está la sección actualizada con la especificación EBNF de la gramática ISO-14977:
+
+## Especificación EBNF de la gramática ISO-14977
 
 La especificación de la gramática de nuestro lenguaje se encuentra en el archivo `grammar.bnf`. La gramática se encuentra en formato EBNF y se ha dividido en varias reglas para facilitar su lectura. La gramática se ha definido de acuerdo a los requerimientos del enunciado del taller 02, orientado al problema de dos vías de clasificación utilizando conceptos de teoría de rachas.
 
@@ -319,11 +321,12 @@ La especificación de la gramática de nuestro lenguaje se encuentra en el archi
 Un programa comienza con la declaración de variables y arreglos que se utilizarán a lo largo del análisis, seguido de las instrucciones que definen el flujo del programa y realizan cálculos estadísticos.
 
 ```ebnf
-program = declarations, statements ;
+program = "begin", declarations, statements, "end" ;
 ```
 
 **Ejemplo:**
 ```plaintext
+begin
 int n;
 float mean;
 n = 10;
@@ -333,6 +336,7 @@ for (int i = 0; i < n; i = i + 1) {
 }
 mean = mean / n;
 print(mean);
+end
 ```
 
 ### Declaraciones `declarations`
@@ -354,8 +358,9 @@ float mean;
 Existen tres tipos de declaraciones: variables simples, variables inicializadas, y arreglos. Las declaraciones permiten definir las variables y arreglos necesarios para almacenar datos y resultados de las pruebas estadísticas.
 
 ```ebnf
-declaration_statement = type, IDENTIFIER, ";"
-                      | type, IDENTIFIER, "=", expression, ";"
+declaration_statement = type, IDENTIFIER, ";" 
+                      | type, IDENTIFIER, "=", expression, ";" 
+                      | type, IDENTIFIER, array_declaration, ";" 
                       | type, IDENTIFIER, array_initialization, ";" ;
 ```
 
@@ -374,6 +379,21 @@ Se soportan tipos `int` y `float` porque las pruebas estadísticas pueden involu
 type = "int" | "float" ;
 ```
 
+### Declaración de Arreglos `array_declaration`
+
+Permite la declaración de arreglos unidimensionales y bidimensionales, los cuales son esenciales para almacenar tablas de datos en un análisis de clasificación de dos vías.
+
+```ebnf
+array_declaration = "[", NUMBER, "]"
+                  | "[", NUMBER, "]", "[", NUMBER, "]" ;
+```
+
+**Ejemplo:**
+```plaintext
+int data[3];
+int matrix[2][3];
+```
+
 ### Inicialización de Arreglos `array_initialization`
 
 Permite la inicialización de matrices, las cuales son esenciales para almacenar tablas de datos en un análisis de clasificación de dos vías.
@@ -385,7 +405,8 @@ array_initialization = "[", NUMBER, "]", "=", "{", numbers, "}"
 
 **Ejemplo:**
 ```plaintext
-int data[2][3] = {{1, 2, 3}, {4, 5, 6}};
+int data[3] = {1, 2, 3};
+int matrix[2][3] = {{1, 2, 3}, {4, 5, 6}};
 ```
 
 ### Elementos de Arreglos `array_elements`
@@ -408,8 +429,7 @@ array_elements = "{", numbers, "}"
 Permite la especificación de listas de números, necesarios para llenar las matrices con datos de observación.
 
 ```ebnf
-numbers = NUMBER
-        | numbers, ",", NUMBER ;
+numbers = NUMBER, { ",", NUMBER } ;
 ```
 
 **Ejemplo:**
@@ -434,22 +454,26 @@ Permite la realización de cálculos matemáticos y lógicos, necesarios para ll
 - Operador de comparación diferente de
 - Operador de comparación menor o igual que
 - Operador de comparación mayor o igual que
+- Acceso a elementos de arreglos
+- Función de casteo
 
 ```ebnf
-expression = NUMBER
-           | IDENTIFIER
-           | expression, "+", expression
-           | expression, "-", expression
-           | expression, "*", expression
-           | expression, "/", expression
-           | "(", expression, ")"
-           | expression, "<", expression
-           | expression, ">", expression
-           | expression, "==", expression
-           | expression, "!=", expression
-           | expression, "<=", expression
-           | expression, ">=", expression
-           | IDENTIFIER, "[", expression, "]" ;  // Acceso a elementos de arreglos
+expression = NUMBER 
+           | IDENTIFIER 
+           | expression, "+", expression 
+           | expression, "-", expression 
+           | expression, "*", expression 
+           | expression, "/", expression 
+           | "(", expression, ")" 
+           | expression, "<", expression 
+           | expression, ">", expression 
+           | expression, "==", expression 
+           | expression, "!=", expression 
+           | expression, "<=", expression 
+           | expression, ">=", expression 
+           | "cast", "(", type, ",", expression, ")" 
+           | IDENTIFIER, "[", expression, "]" 
+           | IDENTIFIER, "[", expression, "]", "[", expression, "]" ;
 ```
 
 **Ejemplo:**
@@ -458,6 +482,7 @@ x + y
 (x - y) / z
 total >= 0
 data[i]
+cast(int, x)
 ```
 
 ### Sentencias `statements`
@@ -496,13 +521,17 @@ statement = assignment_statement
 Permite asignar valores a variables y arreglos, necesarios para almacenar resultados intermedios y finales de las pruebas estadísticas.
 
 ```ebnf
-assignment_statement = IDENTIFIER, "=", expression, ";" ;
+assignment_statement = IDENTIFIER, "=", expression, ";" 
+                     | IDENTIFIER, "[", expression, "]", "=", expression, ";" 
+                     | IDENTIFIER, "[", expression, "]", "[", expression, "]", "=", expression, ";" ;
 ```
 
 **Ejemplo:**
 ```plaintext
 n = 10;
 mean = 0.0;
+data[0] = 5;
+matrix[0][1] = 3;
 ```
 
 ### Asignación en Bucle `loop_assignment_statement`
@@ -510,15 +539,15 @@ mean = 0.0;
 Permite la asignación de valores en bucles, esencial para realizar cálculos iterativos en pruebas estadísticas.
 
 ```ebnf
-loop_assignment_statement = type, IDENTIFIER, "=", expression
+loop_assignment_statement = type, IDENTIFIER, "=", expression 
                           | IDENTIFIER, "=", expression ;
 ```
 
 **Ejemplo:**
 ```plaintext
-j = 0
-i = i + 1
-k = k * 2
+i = 0;
+int i = 0;
+i = i + 1;
 ```
 
 ### Condicional If-Else `if_statement`
@@ -526,7 +555,7 @@ k = k * 2
 Permite la ejecución condicional de bloques de código, esencial para implementar algoritmos que requieren decisiones basadas en condiciones.
 
 ```ebnf
-if_statement = "if", "(", expression, ")", "{", statements, "}", "else", "{", statements, "}"
+if_statement = "if", "(", expression, ")", "{", statements, "}", "else", "{", statements, "}" 
              | "if", "(", expression, ")", "{", statements, "}" ;
 ```
 
@@ -565,7 +594,7 @@ for_statement = "for", "(", loop_assignment_statement, ";", expression, ";", loo
 
 **Ejemplo:**
 ```plaintext
-for (i = 0; i < n; i = i + 1) {
+for (int i = 0; i < n; i = i + 1) {
     total += data[i];
 }
 ```
@@ -578,7 +607,9 @@ Permite la impresión de valores en la consola, necesaria para mostrar resultado
 print_statement = "print", "(", expression, ")", ";" ;
 ```
 
-**Ejemplo:**
+**Ejemplo
+
+:**
 ```plaintext
 print(mean);
 ```
@@ -588,7 +619,7 @@ print(mean);
 Permite la especificación de números enteros y de punto flotante, necesarios para realizar cálculos estadísticos y comparaciones.
 
 ```ebnf
-NUMBER = /* expresión regular para número */
+NUMBER = digit, { digit } , [ ".", digit, { digit } ] ;
 ```
 
 ### Identificadores `IDENTIFIER`
@@ -596,72 +627,20 @@ NUMBER = /* expresión regular para número */
 Permite la especificación de identificadores, necesarios para nombrar variables y arreglos en el programa.
 
 ```ebnf
-IDENTIFIER = /* expresión regular para identificador */
+IDENTIFIER = letter, { letter | digit | "_" } ;
 ```
 
-### Gramática Completa
-La especificación completa se vería así:
-```bnf
-<program> ::= <declarations> <statements>
+### Definiciones de letras y dígitos
 
-<declarations> ::= <declaration> <declarations>
-                 | /* empty */
+```ebnf
+letter = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m"
+       | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+       | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M"
+       | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" ;
 
-<declaration> ::= <type> <IDENTIFIER> ";"
-                | <type> <IDENTIFIER> "=" <expression> ";"
-                | <type> <IDENTIFIER> <array_initialization> ";"
-
-<type> ::= "int"
-         | "float"
-
-<array_initialization> ::= "[" <NUMBER> "]" "[" <NUMBER> "]" "=" "{" <array_elements> "}"
-
-<array_elements> ::= "{" <numbers> "}"
-                   | <array_elements> "," "{" <numbers> "}"
-
-<numbers> ::= <NUMBER>
-            | <numbers> "," <NUMBER>
-
-<expression> ::= <NUMBER>
-               | <IDENTIFIER>
-               | <expression> "+" <expression>
-               | <expression> "-" <expression>
-               | <expression> "*" <expression>
-               | <expression> "/" <expression>
-               | "(" <expression> ")"
-               | <expression> "<" <expression>
-               | <expression> ">" <expression>
-               | <expression> "==" <expression>
-               | <expression> "!=" <expression>
-               | <expression> "<=" <expression>
-               | <expression> ">=" <expression>
-
-<statements> ::= <statement> <statements>
-               | /* empty */
-
-<statement> ::= <assignment_statement>
-              | <if_statement>
-              | <while_statement>
-              | <for_statement>
-              | <print_statement>
-
-<assignment_statement> ::= <IDENTIFIER> "=" <expression> ";"
-
-<loop_assignment_statement> ::= <IDENTIFIER> "=" <expression>
-
-<if_statement> ::= "if" "(" <expression> ")" "{" <statements> "}" "else" "{" <statements> "}"
-                 | "if" "(" <expression> ")" "{" <statements> "}"
-
-<while_statement> ::= "while" "(" <expression> ")" "{" <statements> "}"
-
-<for_statement> ::= "for" "(" <loop_assignment_statement> ";" <expression> ";" <loop_assignment_statement> ")" "{" <statements> "}"
-
-<print_statement> ::= "print" "(" <expression> ")" ";"
-
-<NUMBER> ::= /* expresión regular para número */
-
-<IDENTIFIER> ::= /* expresión regular para identificador */
+digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
 ```
+
 
 ## Referencias
 [^1]: [GNU Flex manual](https://ftp.gnu.org/old-gnu/Manuals/flex-2.5.4/html_mono/flex.html)

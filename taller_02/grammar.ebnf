@@ -1,23 +1,53 @@
-program = declarations, statements ;
+(* Especificación EBNF ISO-14977 *)
 
-declarations = { declaration } ;
+program = "begin", declarations, statements, "end" ;
 
-declaration = type, identifier, ";" 
-            | type, identifier, "=", expression, ";" 
-            | type, identifier, array_initialization, ";" ;
+declarations = { declaration_statement } ;
+
+declaration_statement = type, IDENTIFIER, ";" 
+                      | type, IDENTIFIER, "=", expression, ";" 
+                      | type, IDENTIFIER, array_declaration, ";" 
+                      | type, IDENTIFIER, array_initialization, ";" ;
 
 type = "int" | "float" ;
 
-array_initialization = "[", number, "]", "[", number, "]", "=", "{", array_elements, "}" ;
+array_declaration = "[", NUMBER, "]"
+                  | "[", NUMBER, "]", "[", NUMBER, "]" ;
 
-array_elements = "{", numbers, "}" 
+array_initialization = "[", NUMBER, "]", "=", "{", numbers, "}"
+                     | "[", NUMBER, "]", "[", NUMBER, "]", "=", "{", array_elements, "}" ;
+
+array_elements = "{", numbers, "}"
                | array_elements, ",", "{", numbers, "}" ;
 
-numbers = number 
-        | numbers, ",", number ;
+numbers = NUMBER, { ",", NUMBER } ;
 
-expression = number 
-           | identifier 
+statements = { statement } ;
+
+statement = assignment_statement
+          | if_statement
+          | while_statement
+          | for_statement
+          | print_statement ;
+
+assignment_statement = IDENTIFIER, "=", expression, ";" 
+                     | IDENTIFIER, "[", expression, "]", "=", expression, ";" 
+                     | IDENTIFIER, "[", expression, "]", "[", expression, "]", "=", expression, ";" ;
+
+loop_assignment_statement = type, IDENTIFIER, "=", expression 
+                          | IDENTIFIER, "=", expression ;
+
+if_statement = "if", "(", expression, ")", "{", statements, "}", "else", "{", statements, "}" 
+             | "if", "(", expression, ")", "{", statements, "}" ;
+
+while_statement = "while", "(", expression, ")", "{", statements, "}" ;
+
+for_statement = "for", "(", loop_assignment_statement, ";", expression, ";", loop_assignment_statement, ")", "{", statements, "}" ;
+
+print_statement = "print", "(", expression, ")", ";" ;
+
+expression = NUMBER 
+           | IDENTIFIER 
            | expression, "+", expression 
            | expression, "-", expression 
            | expression, "*", expression 
@@ -28,28 +58,11 @@ expression = number
            | expression, "==", expression 
            | expression, "!=", expression 
            | expression, "<=", expression 
-           | expression, ">=" ;
+           | expression, ">=", expression 
+           | "cast", "(", type, ",", expression, ")" 
+           | IDENTIFIER, "[", expression, "]" 
+           | IDENTIFIER, "[", expression, "]", "[", expression, "]" ;
 
-statements = { statement } ;
-
-statement = assignment_statement 
-          | if_statement 
-          | while_statement 
-          | for_statement 
-          | print_statement ;
-
-assignment_statement = identifier, "=", expression, ";" ;
-
-loop_assignment_statement = identifier, "=", expression ;
-
-if_statement = "if", "(", expression, ")", "{", statements, "}", [ "else", "{", statements, "}" ] ;
-
-while_statement = "while", "(", expression, ")", "{", statements, "}" ;
-
-for_statement = "for", "(", loop_assignment_statement, ";", expression, ";", loop_assignment_statement, ")", "{", statements, "}" ;
-
-print_statement = "print", "(", expression, ")", ";" ;
-
-number = ? regular expression for number ? ;
-
-identifier = ? regular expression for identifier ? ;
+(* Terminales *)
+IDENTIFIER = letter, { letter | digit | "_" } ;
+NUMBER = digit, { digit } , [ ".", digit, { digit } ] ;

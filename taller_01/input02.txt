@@ -1,18 +1,26 @@
+begin
+// Declaraciones
 int a = 5;
 float b = 3.14;
-
-// Definición de una matriz 3x3
+int i;
+int j;
+int T_mod = 0;
+int T_bi[3];
+int T_tj[3];
+int R_mod = 0;
+float P_ij[3][3];
 int matrix[3][3] = {
     {1, 2, 3},
     {4, 5, 6},
     {7, 8, 9}
 };
-
-// Variables auxiliares
-int i, j;
+int R_ij[3][3] = {
+    {1, 1, 1},
+    {1, 1, 1},
+    {1, 1, 1}
+};
 
 // Calcular el total de datos del modelo
-int T_mod = 0;
 for (i = 0; i < 3; i = i + 1) {
     for (j = 0; j < 3; j = j + 1) {
         T_mod = T_mod + matrix[i][j];
@@ -21,7 +29,7 @@ for (i = 0; i < 3; i = i + 1) {
 print(T_mod);
 
 // Calcular el total de datos por bloque
-int T_bi[3];
+
 for (i = 0; i < 3; i = i + 1) {
     T_bi[i] = 0;
     for (j = 0; j < 3; j = j + 1) {
@@ -31,7 +39,6 @@ for (i = 0; i < 3; i = i + 1) {
 }
 
 // Calcular el total de datos por tratamiento
-int T_tj[3];
 for (j = 0; j < 3; j = j + 1) {
     T_tj[j] = 0;
     for (i = 0; i < 3; i = i + 1) {
@@ -41,11 +48,7 @@ for (j = 0; j < 3; j = j + 1) {
 }
 
 // Calcular el número de rachas por celda (simplificado para el ejemplo)
-int R_ij[3][3] = {
-    {1, 1, 1},
-    {1, 1, 1},
-    {1, 1, 1}
-};
+
 for (i = 0; i < 3; i = i + 1) {
     for (j = 0; j < 3; j = j + 1) {
         print(R_ij[i][j]);
@@ -53,7 +56,7 @@ for (i = 0; i < 3; i = i + 1) {
 }
 
 // Calcular el número total de rachas en el modelo
-int R_mod = 0;
+
 for (i = 0; i < 3; i = i + 1) {
     for (j = 0; j < 3; j = j + 1) {
         R_mod = R_mod + R_ij[i][j];
@@ -62,10 +65,11 @@ for (i = 0; i < 3; i = i + 1) {
 print(R_mod);
 
 // Calcular el promedio de rachas por celda (simplificado para el ejemplo)
-float P_ij[3][3];
 for (i = 0; i < 3; i = i + 1) {
     for (j = 0; j < 3; j = j + 1) {
-        P_ij[i][j] = (float)R_ij[i][j] / (float)matrix[i][j];
+        P_ij[i][j] = cast(float,R_ij[i][j]) / cast(float,matrix[i][j]);
         print(P_ij[i][j]);
     }
 }
+
+end

@@ -1,54 +1,58 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+extern FILE *yyin;
+
 %}
 
-/*** Definición de patrones utilizando expresiones regulares ***/
-digit      [0-9]
-letter     [a-zA-Z_]
-identifier {letter}({letter}|{digit})*
-number     {digit}+(\.{digit}+)?
-whitespace [ \t\n\r]
-
-/*** Reglas de sustitución ***/
 %%
-"int"       { printf("INT\n"); }          /* Tipo de dato entero */
-"float"     { printf("FLOAT\n"); }        /* Tipo de dato flotante */
-"if"        { printf("IF\n"); }           /* Estructura de selección */
-"else"      { printf("ELSE\n"); }         /* Parte de la estructura de selección */
-"for"       { printf("FOR\n"); }          /* Estructura de iteración */
-"while"     { printf("WHILE\n"); }        /* Estructura de iteración */
-"print"     { printf("PRINT\n"); }        /* Función de impresión */
-"read"      { printf("READ\n"); }         /* Función de lectura */
 
-"="         { printf("ASSIGN\n"); }       /* Operador de asignación */
-";"         { printf("SEMICOLON\n"); }    /* Punto y coma */
-"("         { printf("LPAREN\n"); }       /* Paréntesis izquierdo */
-")"         { printf("RPAREN\n"); }       /* Paréntesis derecho */
-"{"         { printf("LBRACE\n"); }       /* Llave izquierda */
-"}"         { printf("RBRACE\n"); }       /* Llave derecha */
-"<"         { printf("LT\n"); }           /* Operador menor que */
-">"         { printf("GT\n"); }           /* Operador mayor que */
-"+"         { printf("PLUS\n"); }         /* Operador de suma */
-"-"         { printf("MINUS\n"); }        /* Operador de resta */
-"*"         { printf("MULT\n"); }         /* Operador de multiplicación */
-"/"         { printf("DIV\n"); }          /* Operador de división */
-"=="        { printf("EQ\n"); }           /* Operador igual a */
-"!="        { printf("NEQ\n"); }          /* Operador diferente a */
-"<="        { printf("LEQ\n"); }          /* Operador menor o igual que */
-">="        { printf("GEQ\n"); }          /* Operador mayor o igual que */
-"\""        { printf("QUOTE\n"); }        /* Comillas dobles */
-"["         { printf("LBRACKET\n"); }     /* Corchete izquierdo */
-"]"         { printf("RBRACKET\n"); }     /* Corchete derecho */
-","         { printf("COMMA\n"); }        /* Coma */
+"//".*               {/* Ignore single-line comments */}
+"begin"              { printf("BEGIN_PROGRAM\n"); }
+"end"                { printf("END_PROGRAM\n"); }
+"int"                { printf("INT\n"); }
+"float"              { printf("FLOAT\n"); }
+"if"                 { printf("IF\n"); }
+"else"               { printf("ELSE\n"); }
+"for"                { printf("FOR\n"); }
+"while"              { printf("WHILE\n"); }
+"print"              { printf("PRINT\n"); }
+"read"               { printf("READ\n"); }
+"cast"               { printf("CAST_FUNC\n"); }
 
-{identifier}   { printf("IDENTIFIER(%s)\n", yytext); }
-{number}       { printf("NUMBER(%s)\n", yytext); }
-{whitespace}   { /* Ignorar espacios en blanco */ }
-"//".*         { /* Ignorar comentarios de una línea */ }
-.              { printf("Unexpected character: %c\n", *yytext); }
+[a-zA-Z_][a-zA-Z0-9_]* { printf("IDENTIFIER(%s)\n", yytext); }
+[0-9]+"."[0-9]*      { printf("NUMBER(%s)\n", yytext); }
+[0-9]*"."[0-9]+      { printf("NUMBER(%s)\n", yytext); }
+[0-9]+               { printf("NUMBER(%s)\n", yytext); }
+
+"="                  { printf("ASSIGN\n"); }
+";"                  { printf("SEMICOLON\n"); }
+"("                  { printf("LPAREN\n"); }
+")"                  { printf("RPAREN\n"); }
+"{"                  { printf("LBRACE\n"); }
+"}"                  { printf("RBRACE\n"); }
+"["                  { printf("LBRACKET\n"); }
+"]"                  { printf("RBRACKET\n"); }
+"<"                  { printf("LT\n"); }
+">"                  { printf("GT\n"); }
+"+"                  { printf("PLUS\n"); }
+"-"                  { printf("MINUS\n"); }
+"*"                  { printf("MULT\n"); }
+"/"                  { printf("DIV\n"); }
+"=="                 { printf("EQ\n"); }
+"!="                 { printf("NEQ\n"); }
+"<="                 { printf("LEQ\n"); }
+">="                 { printf("GEQ\n"); }
+","                  { printf("COMMA\n"); }
+"\""                 { printf("QUOTE\n"); }
+
+[ \t\r\n]+           { /* skip whitespace */ }
+.                    { printf("Unexpected character: %s\n", yytext); }
 
 %%
-/*** Función de cierre ***/
+
 int main(int argc, char **argv) {
     if (argc > 1) {
         FILE *file = fopen(argv[1], "r");
