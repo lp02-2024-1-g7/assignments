@@ -1,6 +1,3 @@
-Aquí tienes un archivo README que describe cómo ejecutar el proyecto:
-
-```markdown
 # Proyecto de Sistema de Actores en Go
 
 Este proyecto implementa un sistema básico de actores en Go, donde dos actores se comunican entre sí utilizando TCP. Cada actor puede ser configurado a través de argumentos de línea de comandos.
