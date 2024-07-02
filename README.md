@@ -10,7 +10,6 @@ Lenguajes de programación es una materia de la carrera de Ingeniería en Sistem
 ## Información
 * [Lineamientos operativos](/LineamientosOperativos.md)
 * [Exposición](/exposicion/README.md)
-* [Tareas](/tareas/README.md)
 * [Taller 1](/taller_01/README.md)
 * [Taller 2](/taller_02/README.md)
 * [Proyecto](/proyecto/README.md)
