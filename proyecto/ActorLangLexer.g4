@@ -1,0 +1,22 @@
+lexer grammar ActorLangLexer;
+
+ACTOR               : 'actor' ;
+SEND                : 'send' ;
+RECEIVE             : 'receive' ;
+START               : 'start' ;
+ON                  : 'on' ;
+TO                  : 'to' ;
+PORT                : 'port' ;
+PRINT               : 'print' ;
+ARROW               : '->' ;
+LBRACE              : '{' ;
+RBRACE              : '}' ;
+LPAREN              : '(' ;
+RPAREN              : ')' ;
+SEMICOLON           : ';' ;
+ASSIGN              : '=' ;
+COMMA               : ',' ;
+IDENTIFIER          : [a-zA-Z_][a-zA-Z0-9_]* ;
+STRING_LITERAL      : '"' ~["]* '"' ;
+INT_LITERAL         : [0-9]+ ;
+WS                  : [ \t\r\n]+ -> skip ;
