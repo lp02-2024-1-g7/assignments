@@ -61,9 +61,9 @@ SEND                : 'send' ;
 RECEIVE             : 'receive' ;
 START               : 'start' ;
 ON                  : 'on' ;
-END                 : 'end' ;
 TO                  : 'to' ;
 PORT                : 'port' ;
+PRINT               : 'print' ;
 ARROW               : '->' ;
 LBRACE              : '{' ;
 RBRACE              : '}' ;
@@ -72,7 +72,6 @@ RPAREN              : ')' ;
 SEMICOLON           : ';' ;
 ASSIGN              : '=' ;
 COMMA               : ',' ;
-PRINT               : 'print' ;
 IDENTIFIER          : [a-zA-Z_][a-zA-Z0-9_]* ;
 STRING_LITERAL      : '"' ~["]* '"' ;
 INT_LITERAL         : [0-9]+ ;
@@ -91,16 +90,17 @@ parser grammar ActorLangParser;
 options { tokenVocab=ActorLangLexer; }
 
 program             : actorDefinition+ ;
-actorDefinition     : ACTOR IDENTIFIER LBRACE portDefinition messageHandler* RBRACE ;
-portDefinition      : PORT ASSIGN INT_LITERAL SEMICOLON ;
+actorDefinition     : ACTOR IDENTIFIER LBRACE actorBody RBRACE ;
+actorBody           : portDeclaration messageHandler* ;
+portDeclaration     : PORT ASSIGN INT_LITERAL SEMICOLON ;
 messageHandler      : ON STRING_LITERAL ARROW LBRACE statements RBRACE ;
 statements          : statement* ;
-statement           : sendStatement | receiveStatement | startStatement | printStatement ;
+statement           : sendStatement | receiveStatement | startStatement | assignmentStatement | printStatement ;
 sendStatement       : SEND LPAREN STRING_LITERAL COMMA IDENTIFIER RPAREN TO STRING_LITERAL PORT INT_LITERAL SEMICOLON ;
 receiveStatement    : RECEIVE LPAREN RPAREN SEMICOLON ;
-startStatement      : START LPAREN IDENTIFIER RPAREN SEMICOLON ;
-printStatement      : PRINT LPAREN STRING_LITERAL RPAREN SEMICOLON ;
+startStatement      : START LPAREN STRING_LITERAL COMMA IDENTIFIER RPAREN SEMICOLON ;
 assignmentStatement : IDENTIFIER ASSIGN expression SEMICOLON ;
+printStatement      : PRINT LPAREN STRING_LITERAL RPAREN SEMICOLON ;
 expression          : STRING_LITERAL | IDENTIFIER | INT_LITERAL ;
 
 ```
@@ -130,6 +130,7 @@ Esto creará los siguientes archivos:
 ## Python runtime
 Las clases Actor y Message se encuentran en el archivo `actor.py`. 
 ```python
+# proyecto\actor.py
 import socket
 import threading
 import time
@@ -144,9 +145,9 @@ class Actor:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 # extract the recipient address and port
-                host = recipient.split(':')
-                s.connect((host, int(self.port))) #
-                s.sendall(message.encode())
+                host, port = recipient.split(':')
+                s.connect((host, int(port)))
+                s.sendall(message.content.encode())  # Convert the message content to bytes
         except Exception as e:
             print(f"Error sending message from Actor {self.id}: {e}")
 
@@ -165,13 +166,14 @@ class Actor:
             message = Message(data.decode('utf-8'))
             self.inbox.append(message)
             print(f"Actor {self.id} received: {message}")
-        
+
 class Message:
     def __init__(self, content):
         self.content = content
 
     def __str__(self):
         return self.content
+
 ```
 
 Este código define una clase `Actor` que representa un actor en el sistema. Cada actor tiene un identificador único, un puerto en el que escucha para recibir mensajes y una bandeja de entrada para almacenar los mensajes recibidos. La clase `Actor` también tiene un método `send` para enviar mensajes a otros actores y un método `start` para iniciar el actor y escuchar en su puerto.
@@ -182,36 +184,92 @@ Este código define una clase `Actor` que representa un actor en el sistema. Cad
 # proyecto\listener.py
 from ActorLangParserListener import ActorLangParserListener
 from actor import Actor, Message
+from ActorLangParser import ActorLangParser
 
 class MyActorLangListener(ActorLangParserListener):
     def __init__(self):
         self.actors = {}  # Store created actors
-        self.actions = []  # Store actions to be executed after actor definitions
+        self.actions = []  # Store actions to be executed
 
     def enterActorDefinition(self, ctx):
+        """
+        This method is called when entering an actor definition in the grammar.
+
+        Parameters:
+            ctx (antlr4.ParserRuleContext): The context object representing the actor definition.
+
+        Returns:
+            None
+
+        Side Effects:
+            - Updates the `actors` dictionary with a new Actor object.
+
+        """
         actor_id = ctx.IDENTIFIER().getText()
-        port = ctx.portDefinition().INT_LITERAL().getText()
+        port = ctx.actorBody().portDeclaration().INT_LITERAL().getText()
         self.actors[actor_id] = Actor(actor_id, port)
 
     def exitSendStatement(self, ctx):
-        sender_name = ctx.IDENTIFIER().getText()  # Sender's name
-        recipient_address = ctx.STRING_LITERAL(1).getText().strip('"')  # Recipient's address
-        port = ctx.INT_LITERAL().getText()  # Port number
+        """
+        Process the exit event of the 'sendStatement' rule.
+
+        Args:
+            ctx: The context object representing the 'sendStatement' rule.
+
+        Returns:
+            None
+
+        Raises:
+            None
+        """
+        sender_name = ctx.IDENTIFIER().getText()
+        recipient_name = ctx.STRING_LITERAL(1).getText().strip('"')
         message = ctx.STRING_LITERAL(0).getText().strip('"')
-        self.actions.append((sender_name, recipient_address, port, message))
+        recipient_address = ctx.STRING_LITERAL(1).getText().strip('"')
+        port = ctx.INT_LITERAL().getText()  # Port number
+
+        action = ("send", sender_name, recipient_name, message, recipient_address, port)
+        self.actions.append(action)
+
+    def exitStartStatement(self, ctx):
+        """
+        Starts the actor with the given identifier.
+
+        Parameters:
+        - ctx: The context object containing the actor identifier.
+
+        Returns:
+        None
+        """
+        actor = ctx.IDENTIFIER().getText()
+        port = ctx.STRING_LITERAL().getText().strip('"')
+        action = ("start", actor, port)
+        self.actions.append(action)
+        
 
     def exitPrintStatement(self, ctx):
+        """
+        Prints the message extracted from the given context.
+
+        Parameters:
+        - ctx: The context object containing the string literal.
+
+        Returns:
+        None
+        """
         message = ctx.STRING_LITERAL().getText().strip('"')
-        self.actions.append(("print", message))
+        print(message)
 
     def execute_actions(self):
         for action in self.actions:
-            if action[0] == "print":
-                print(action[1])
-            else:
-                sender_name, recipient_address, port, message = action
+            if action[0] == "send":
+                _action, sender_name, recipient_name, message, recipient_address, port = action
                 sender = self.actors[sender_name]
                 sender.send(f"{recipient_address}:{port}", Message(message))
+            elif action[0] == "start":
+                port = action[2]
+                actor = self.actors[action[1]]
+                actor.start()
 ```
 
 Este código define una clase `MyActorLangListener` que hereda de `ActorLangParserListener` y anula algunos de los métodos generados por ANTLR. En particular, anulamos los métodos `enterActorDefinition`, `exitSendStatement` y `exitPrintStatement` para manejar la creación de actores, el envío de mensajes y la impresión de mensajes, respectivamente.
@@ -223,6 +281,7 @@ from antlr4 import *
 from ActorLangLexer import ActorLangLexer
 from ActorLangParser import ActorLangParser
 from listener import MyActorLangListener
+import sys
 
 def main(file_path):
     input_stream = FileStream(file_path)
@@ -234,11 +293,11 @@ def main(file_path):
     listener = MyActorLangListener()
     walker = ParseTreeWalker()
     walker.walk(listener, tree)
-
     listener.execute_actions()
 
 if __name__ == '__main__':
-    file_path = "input01.txt"
+    # Obtener el archivo de entrada desde la línea de comandos
+    file_path = sys.argv[1] # .\proyecto\input01.txt
     main(file_path)
 ```
 
@@ -248,23 +307,31 @@ Este código define una función `main` que toma la ruta de un archivo de entrad
 Primero definimos un archivo de entrada `input01.txt` con el siguiente contenido:
 ```plaintext
 actor Actor1 {
-    port = 8081;
-    on "init" -> {
-        send("Hello, Actor2!", Actor2) to "localhost" port 8080;
-        print("Message sent from Actor1.");
+    port = 9090;
+    on "Hello, Actor1!" -> {
+        start("9090", Actor1);
+        print("Message received in Actor1.");
     }
 }
-
-actor Actor2 {
-    port = 8080;
-    on "Hello, Actor2!" -> {
-        print("Message received in Actor2.");
-    }
-}
-
 ```
 
 Luego, ejecutamos el programa principal `main.py`:
 ```bash
 python main.py input01.txt
+```
+
+Segundo definimos un archivo de entrada `input02.txt` con el siguiente contenido:
+```plaintext
+actor Actor2 {
+    port = 9091;
+    on "init" -> {
+        send("Hello, Actor1!", Actor2) to "127.0.0.1" port 9090;
+        print("Message sent from Actor1.");
+    }
+}
+```
+
+Luego, ejecutamos el programa principal `main.py`:
+```bash
+python main.py input02.txt
 ```
