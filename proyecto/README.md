@@ -1,5 +1,10 @@
 # Proyecto de Lenguajes para Sistema de Actores 
 
+## Introductión
+Este proyecto implementa un sistema de actores básico en Python, donde los actores se comunican entre sí utilizando sockets TCP. Cada actor puede ser configurado a través de un archivo de entrada que describe su comportamiento. El sistema de actores se basa en un analizador léxico y sintáctico implementado con ANTLR y un runtime de Python.
+
+Mas información en [marcoteorico.md](marcoteorico.md)
+
 ## Requisitos
 - JDK 8 o superior
 - JAR de ANTLR 4.11.1 (incluido en el repositorio)
@@ -46,8 +51,6 @@ python3
 >>> import antlr4
 >>> exit()
 ```
-
-
 
 ## Analisador Léxico
 Tal y como se realizpó en el taller 01, se implementó un analizador léxico con FLEX. En este caso, se implementará un analizador léxico con ANTLR.
