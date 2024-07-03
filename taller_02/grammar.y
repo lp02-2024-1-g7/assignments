@@ -162,6 +162,6 @@ void yyerror(const char *s) {
 }
 
 int main(void) {
-    yydebug = 1;
+    yydebug = 0;
     return yyparse();
 }
