@@ -2,6 +2,5 @@ actor Actor2 {
     port = 9091;
     on "init" -> {
         send("Hello, Actor1!", Actor2) to "127.0.0.1" port 9090;
-        print("Message sent from Actor1.");
     }
 }
