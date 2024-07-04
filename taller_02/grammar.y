@@ -10,11 +10,14 @@ extern FILE *yyin;              // Archivo de entrada
 // Estructura para almacenar las variables
 typedef struct Var {
     char *name; // Nombre de la variable
-    int type; // 0 para int, 1 para float
+    int type; // 0 para int, 1 para float, 2 para arreglo de int, 3 para arreglo de float
     union { // Unión para almacenar el valor de la variable
         int ival;
         double fval;
-    } value; 
+        int *iarr;    // Puntero para arreglo de int
+        double *farr; // Puntero para arreglo de float
+    } value;
+    int size; // Tamaño del arreglo (si aplica)
 } Var;
 
 Var variables[100]; // Hasta 100 variables
@@ -43,7 +46,7 @@ int get_var_index(char *name) {
 %token <sval> IDENTIFIER
 %token INT FLOAT
 %token ASSIGN
-%token TBEGIN TEND 
+%token TBEGIN TEND
 %token PRINT
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON
 
@@ -62,28 +65,52 @@ statement_list:
 
 statement:
     // print(x)
-    PRINT LPAREN expression RPAREN SEMICOLON { 
+    PRINT LPAREN expression RPAREN SEMICOLON {
             if ($3 == (int)$3) {
-                printf("%d\n", (int)$3); 
+                printf("%d\n", (int)$3);
             } else {
-                printf("%f\n", $3); 
+                printf("%f\n", $3);
             }
         }
     // int x;
-    | INT IDENTIFIER SEMICOLON { 
-            variables[var_count].name = $2; 
+    | INT IDENTIFIER SEMICOLON {
+            variables[var_count].name = $2;
             variables[var_count].type = 0; // Inicializa la variable como tipo int
             variables[var_count].value.ival = 0; // Valor por defecto
             var_count++;
             printf("Variable tipo int declarada: %s\n", $2);
         }
     // float x;
-    | FLOAT IDENTIFIER SEMICOLON { 
-            variables[var_count].name = $2; 
+    | FLOAT IDENTIFIER SEMICOLON {
+            variables[var_count].name = $2;
             variables[var_count].type = 1; // Inicializa la variable como tipo float
             variables[var_count].value.fval = 0.0; // Valor por defecto
             var_count++;
             printf("Variable tipo float declarada: %s\n", $2);
+        }
+    // int arr[10];
+    | INT IDENTIFIER LBRACKET INT_NUMBER RBRACKET SEMICOLON {
+            variables[var_count].name = $2;
+            variables[var_count].type = 2; // Inicializa la variable como arreglo de int
+            variables[var_count].size = $4; // Tamaño del arreglo
+            variables[var_count].value.iarr = (int *)malloc($4 * sizeof(int)); // Asigna memoria para el arreglo
+            for (int i = 0; i < $4; i++) {
+                variables[var_count].value.iarr[i] = 0; // Inicializa los elementos a 0
+            }
+            var_count++;
+            printf("Arreglo tipo int declarado: %s[%d]\n", $2, $4);
+        }
+    // float arr[10];
+    | FLOAT IDENTIFIER LBRACKET INT_NUMBER RBRACKET SEMICOLON {
+            variables[var_count].name = $2;
+            variables[var_count].type = 3; // Inicializa la variable como arreglo de float
+            variables[var_count].size = $4; // Tamaño del arreglo
+            variables[var_count].value.farr = (double *)malloc($4 * sizeof(double)); // Asigna memoria para el arreglo
+            for (int i = 0; i < $4; i++) {
+                variables[var_count].value.farr[i] = 0.0; // Inicializa los elementos a 0.0
+            }
+            var_count++;
+            printf("Arreglo tipo float declarado: %s[%d]\n", $2, $4);
         }
     // x = 2;
     | IDENTIFIER ASSIGN expression SEMICOLON {
@@ -112,7 +139,7 @@ expression:
         } else {
             if (variables[index].type == 0) {
                 $$ = variables[index].value.ival;
-            } else {                
+            } else {
                 $$ = variables[index].value.fval;
             }
         }
