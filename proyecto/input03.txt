@@ -1,0 +1,12 @@
+actor Actor2 {
+    port = 9091;
+}
+
+actor Actor3 {
+    port = 9092;
+}
+
+actor Actor4 {
+    port = 9093;
+}
+

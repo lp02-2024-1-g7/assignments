@@ -9,6 +9,25 @@ class Actor:
         self.port = port
         self.inbox = []  # Incoming messages
 
+    def send_broadcast(self, message):
+        for port in range(9090, 9100):
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.settimeout(1)  # Set a timeout for the connection attempt
+                    s.connect(('localhost', port))
+                    s.sendall(message.encode())
+                    print(f"{self.id} sent broadcast: {message} to port {port}")
+                    
+                    # Wait for acknowledgment
+                    ack_data = s.recv(1024)
+                    if ack_data:
+                        ack_message = ack_data.decode('utf-8')
+                        print(f"Actor {self.id} received acknowledgment from port {port}: {ack_message}")
+            except (socket.timeout, ConnectionRefusedError):
+                print(f"Actor {self.id} did not find actor on port {port}")
+            except Exception as e:
+                print(f"Error sending broadcast message from Actor {self.id} to port {port}: {e}")
+
     def send(self, recipient, message):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -34,6 +53,13 @@ class Actor:
             message = Message(data.decode('utf-8'))
             self.inbox.append(message)
             print(f"Actor {self.id} received: {message}")
+
+            # If the message is about a new actor being created, send an acknowledge
+            if message.content == "new_actor_created":
+                acknowledge_message = Message(f"{self.id} acknowledges new actor")
+                conn.sendall(acknowledge_message.content.encode())
+            elif "acknowledges new actor" in message.content:
+                print(f"Actor {self.id} received acknowledgment: {message}")
 
 class Message:
     def __init__(self, content):

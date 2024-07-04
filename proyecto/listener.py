@@ -23,7 +23,9 @@ class MyActorLangListener(ActorLangParserListener):
         """
         actor_id = ctx.IDENTIFIER().getText()
         port = ctx.actorBody().portDeclaration().INT_LITERAL().getText()
-        self.actors[actor_id] = Actor(actor_id, port)
+        new_actor = Actor(actor_id, port)
+        self.actors[actor_id] = new_actor
+        new_actor.send_broadcast(f'New {actor_id} Created')
 
     def exitSendStatement(self, ctx):
         """
