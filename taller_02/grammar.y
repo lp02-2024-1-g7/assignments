@@ -19,7 +19,7 @@ extern FILE *yyin;
 
 %%
 program:
-    TBEGIN SEMICOLON statement_list TEND SEMICOLON { printf("Program executed successfully.\n"); }
+    TBEGIN statement_list TEND { printf("Program executed successfully.\n"); }
     ;
 
 statement_list:

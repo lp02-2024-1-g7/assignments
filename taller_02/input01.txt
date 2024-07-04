@@ -1,5 +1,5 @@
-begin;
+begin
 
 print(2);
 
-end;
+end
