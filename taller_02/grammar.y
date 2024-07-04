@@ -53,6 +53,8 @@ int get_var_index(char *name) {
 %token TBEGIN TEND
 %token PRINT
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON COMMA
+%token LT GT LE GE EQ NE
+%token AND OR
 
 // %type sirve para definir el tipo de retorno de las reglas. %type <tipo> regla1 regla2 ... reglaN
 %type <fval> expression
