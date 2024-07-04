@@ -1,22 +1,8 @@
-begin
-// Declaraciones
-int R_mod = 0;
-float P_ij[3][3];
-
-// Calcular el número total de rachas en el modelo
-for (i = 0; i < 3; i = i + 1) {
-    for (j = 0; j < 3; j = j + 1) {
-        R_mod = R_mod + R_ij[i][j];
-    }
+begin {
+int a;
+float b;
+a = 5;
+b = 3.14;
+print(a);
+print(b);
 }
-print(R_mod);
-
-// Calcular el promedio de rachas por celda (simplificado para el ejemplo)
-for (i = 0; i < 3; i = i + 1) {
-    for (j = 0; j < 3; j = j + 1) {
-        P_ij[i][j] = cast(float,R_ij[i][j]) / cast(float,matrix[i][j]);
-        print(P_ij[i][j]);
-    }
-}
-
-end

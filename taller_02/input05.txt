@@ -1,5 +1,5 @@
 begin {
-float b;
-b = 3.5;
-print(b);
+int a;
+a = 666;
+print(a);
 }

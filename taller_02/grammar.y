@@ -3,23 +3,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-void yyerror(const char *s);    // Function to handle errors
-int yylex(void);                // Function to get the next token  
-extern FILE *yyin;              // Input file
+void yyerror(const char *s);    // Función para manejar errores
+int yylex(void);                // Función para obtener el siguiente token
+extern FILE *yyin;              // Archivo de entrada
 
+// Estructura para almacenar las variables
 typedef struct Var {
-    char *name; // Variable name
-    int type; // 0 for int, 1 for float
-    union { // Union to store the value of the variable
+    char *name; // Nombre de la variable
+    int type; // 0 para int, 1 para float
+    union { // Unión para almacenar el valor de la variable
         int ival;
-        float fval;
+        double fval;
     } value; 
 } Var;
 
-Var variables[100]; // Tenemos hasta 100 variables no mas
-int var_count = 0;
+Var variables[100]; // Hasta 100 variables
+int var_count = 0;  // Contador de variables
 
-// Function to get the index of a variable by its name
+// Función para obtener el índice de una variable por su nombre
 int get_var_index(char *name) {
     for (int i = 0; i < var_count; i++) {
         if (strcmp(variables[i].name, name) == 0) { // strcmp devuelve 0 si las cadenas son iguales
@@ -33,11 +34,12 @@ int get_var_index(char *name) {
 
 %union {
     int ival;
-    float fval;
+    double fval;
     char *sval;
-} // Union to store the value of the token
+} // Unión para almacenar el valor del token
 
-%token <ival> NUMBER
+%token <ival> INT_NUMBER
+%token <fval> FLOAT_NUMBER
 %token <sval> IDENTIFIER
 %token INT FLOAT
 %token ASSIGN
@@ -45,12 +47,12 @@ int get_var_index(char *name) {
 %token PRINT
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON
 
-%type <ival> expression
+%type <fval> expression
 
 %%
 
 program:
-    TBEGIN LBRACE statement_list RBRACE { printf("Program executed successfully.\n"); }
+    TBEGIN LBRACE statement_list RBRACE { printf("Programa ejecutado exitosamente.\n"); }
     ;
 
 statement_list:
@@ -61,32 +63,38 @@ statement_list:
 statement:
     // print(x)
     PRINT LPAREN expression RPAREN SEMICOLON { 
-            printf("%d\n", $3); 
+            if ($3 == (int)$3) {
+                printf("%d\n", (int)$3); 
+            } else {
+                printf("%f\n", $3); 
+            }
         }
     // int x;
     | INT IDENTIFIER SEMICOLON { 
             variables[var_count].name = $2; 
-            variables[var_count].type = 0; // Inicializa la variable como tipo int en 0
+            variables[var_count].type = 0; // Inicializa la variable como tipo int
+            variables[var_count].value.ival = 0; // Valor por defecto
             var_count++;
-            printf("Variable tipo entero declarada %s\n", $2);
+            printf("Variable tipo int declarada: %s\n", $2);
         }
     // float x;
     | FLOAT IDENTIFIER SEMICOLON { 
             variables[var_count].name = $2; 
-            variables[var_count].type = 0; // Inicializa la variable como tipo float en 1
+            variables[var_count].type = 1; // Inicializa la variable como tipo float
+            variables[var_count].value.fval = 0.0; // Valor por defecto
             var_count++;
-            printf("Variable tipo flotante declarada %s\n", $2);
+            printf("Variable tipo float declarada: %s\n", $2);
         }
     // x = 2;
     | IDENTIFIER ASSIGN expression SEMICOLON {
         int index = get_var_index($1);
         if (index == -1) {
-            yyerror("La variable no existe");
+            yyerror("La variable no está declarada");
         } else {
             if (variables[index].type == 0) {
-                variables[index].value.ival = $3;
+                variables[index].value.ival = (int)$3;
             } else {
-                variables[index].value.fval = (float)$3;
+                variables[index].value.fval = $3;
             }
             printf("Valor asignado a la variable %s\n", $1);
         }
@@ -94,7 +102,21 @@ statement:
     ;
 
 expression:
-    NUMBER { $$ = $1; }
+    INT_NUMBER { $$ = $1; }
+    | FLOAT_NUMBER { $$ = $1; }
+    | IDENTIFIER {
+        int index = get_var_index($1);
+        if (index == -1) {
+            yyerror("La variable no está declarada");
+            $$ = 0; // Valor por defecto en caso de error
+        } else {
+            if (variables[index].type == 0) {
+                $$ = variables[index].value.ival;
+            } else {                
+                $$ = variables[index].value.fval;
+            }
+        }
+      }
     ;
 
 %%
@@ -107,7 +129,7 @@ int main(int argc, char **argv) {
     if (argc > 1) {
         FILE *file = fopen(argv[1], "r");
         if (!file) {
-            fprintf(stderr, "Could not open %s\n", argv[1]);
+            fprintf(stderr, "No se pudo abrir %s\n", argv[1]);
             return 1;
         }
         yyin = file;

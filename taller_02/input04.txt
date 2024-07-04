@@ -1,4 +1,4 @@
 begin {
 float b;
-b = 3.5;
+b = 1;
 }

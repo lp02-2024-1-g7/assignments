@@ -8,7 +8,7 @@ void yyerror(const char *s);
 DIGIT               [0-9]
 LETTER              [a-zA-Z_]
 IDENTIFIER          {LETTER}({LETTER}|{DIGIT})*
-FLOAT_NUMBER        ({DIGIT}+"."{DIGIT}*|{DIGIT}*"."{DIGIT}+)
+FLOAT               ({DIGIT}+"."{DIGIT}*|{DIGIT}*"."{DIGIT}+)
 INTEGER             {DIGIT}+
 
 %%
@@ -19,8 +19,8 @@ INTEGER             {DIGIT}+
 "print"                 { return PRINT; }
 
 {IDENTIFIER}            { yylval.sval = strdup(yytext); return IDENTIFIER; }
-{FLOAT_NUMBER}          { yylval.fval = atof(yytext); return NUMBER; }
-{INTEGER}               { yylval.ival = atoi(yytext); return NUMBER; }
+{FLOAT}          { yylval.fval = atof(yytext); return FLOAT_NUMBER; }
+{INTEGER}               { yylval.ival = atoi(yytext); return INT_NUMBER; }
 
 "("                     { return LPAREN; }
 ")"                     { return RPAREN; }

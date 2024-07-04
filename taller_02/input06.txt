@@ -1,6 +1,5 @@
-begin
-// Este codigo debería fallar
-print(1);
-int a;; // Declaración despues del final
-
-end
+begin {
+float b;
+b = 3.14;
+print(b);
+}
