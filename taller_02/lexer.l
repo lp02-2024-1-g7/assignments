@@ -12,6 +12,10 @@ void yyerror(const char *s);
 [0-9]+          { yylval.ival = atoi(yytext); return NUMBER; }
 "("             { return LPAREN; }
 ")"             { return RPAREN; }
+"{"             { return LBRACE; }
+"}"             { return RBRACE; }
+"["             { return LBRACKET; }
+"]"             { return RBRACKET; }
 ";"             { return SEMICOLON; }
 [ \t\n\r]+      ;  // Ignorar espacios en blanco y saltos de línea: LF `\n` y CRLF `\r\n`
 .               { yyerror("Unexpected character"); }

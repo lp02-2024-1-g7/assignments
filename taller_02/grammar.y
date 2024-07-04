@@ -13,13 +13,13 @@ extern FILE *yyin;
 
 %token <ival> NUMBER
 %token TBEGIN TEND PRINT
-%token LPAREN RPAREN SEMICOLON
+%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON
 
 %type <ival> expression
 
 %%
 program:
-    TBEGIN statement_list TEND { printf("Program executed successfully.\n"); }
+    TBEGIN LBRACE statement_list RBRACE { printf("Program executed successfully.\n"); }
     ;
 
 statement_list:

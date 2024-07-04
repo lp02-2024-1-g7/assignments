@@ -255,6 +255,12 @@ Para el análisis léxico de nuestro lenguaje de programación, se ha utilizado 
 
 La especificación de la gramática de nuestro lenguaje se encuentra en el archivo `grammar.bnf`. La gramática se encuentra en formato EBNF y se ha dividido en varias reglas para facilitar su lectura. La gramática se ha definido de acuerdo a los requerimientos del enunciado del taller 02, orientado al problema de dos vías de clasificación utilizando conceptos de teoría de rachas.
 
+### Paso a paso
+
+1. Crear el la patrón léxico para los tokens que se necesitan en la gramática.
+2. Luego definir el `%token` en grammar.y para cada token.
+3. Utilizar el token en las reglas de la gramática grammar.y.
+
 ### Programa `program`
 
 Un programa comienza con la declaración de variables y arreglos que se utilizarán a lo largo del análisis, seguido de las instrucciones que definen el flujo del programa y realizan cálculos estadísticos.
