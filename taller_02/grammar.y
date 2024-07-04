@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 void yyerror(const char *s);    // Función para manejar errores
 int yylex(void);                // Función para obtener el siguiente token
@@ -52,6 +53,7 @@ int get_var_index(char *name) {
 %token TBEGIN TEND
 %token PRINT
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON COMMA
+%token LOG
 
 %type <fval> expression
 
@@ -286,6 +288,15 @@ expression:
             }
         }
       }
+    //log(666)
+    | LOG LPAREN expression RPAREN {
+        if ($3 <= 0) {
+            yyerror("El logaritmo no está definido para números negativos o cero");
+            $$ = 0; // Valor por defecto en caso de error
+        } else {
+            $$ = log10($3);
+        }
+    }
     ;
 
 %%

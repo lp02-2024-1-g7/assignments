@@ -17,6 +17,7 @@ INTEGER             {DIGIT}+
 "int"                   { return INT; }
 "float"                 { return FLOAT; }
 "print"                 { return PRINT; }
+"log"                   { return LOG; }
 
 {IDENTIFIER}            { yylval.sval = strdup(yytext); return IDENTIFIER; }
 {FLOAT}                 { yylval.fval = atof(yytext); return FLOAT_NUMBER; }
