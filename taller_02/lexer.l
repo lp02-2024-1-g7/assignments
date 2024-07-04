@@ -19,7 +19,7 @@ INTEGER             {DIGIT}+
 "print"                 { return PRINT; }
 
 {IDENTIFIER}            { yylval.sval = strdup(yytext); return IDENTIFIER; }
-{FLOAT}          { yylval.fval = atof(yytext); return FLOAT_NUMBER; }
+{FLOAT}                 { yylval.fval = atof(yytext); return FLOAT_NUMBER; }
 {INTEGER}               { yylval.ival = atoi(yytext); return INT_NUMBER; }
 
 "("                     { return LPAREN; }
