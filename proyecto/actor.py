@@ -4,22 +4,24 @@ import threading
 import time
 
 class Actor:
-    actor_registry = {}  # Class-level registry for all actors
-
     def __init__(self, id, port):
         self.id = id
         self.port = port
         self.inbox = []  # Incoming messages
-        Actor.actor_registry[id] = self  # Register the actor
+       
 
     def send(self, host, port, message):
         try:
+            print(f"Attempting to send message to {host}:{port}")
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                # host, port = recipient.split(':')
                 s.connect((host, int(port)))
-                s.sendall(message.content.encode())  # Convert the message content to bytes
+                print('Connection established')
+                print(host, port, message)
+                s.sendall(message.encode())  # Convert the message content to bytes
+                print('Message sent')
         except Exception as e:
             print(f"Error sending message from Actor {self.id}: {e}")
+
 
     def start(self):
         threading.Thread(target=self.listen_for_messages).start()
@@ -40,32 +42,28 @@ class Actor:
             self.handle_user_input(user_input)
 
     def handle_user_input(self, user_input):
-        if user_input.startswith("send "):
-            parts = user_input.split(' ')
-            recipient_id = parts[1]
-            recipient = Actor.actor_registry.get(recipient_id)
-            if recipient:
-                recipient_port = recipient.port
-                message_content = ' '.join(parts[2:])
-                self.send(f"127.0.0.1:{recipient_port}", Message(message_content))
-            else:
-                print(f"Actor {recipient_id} not found.")
-        elif user_input.startswith("invoke "):
-            parts = user_input.split(' ')
-            actor_id = parts[1]
-            method_name = parts[2]
-            args = parts[3:]  # Capture all remaining parts as arguments
-            if actor_id in Actor.actor_registry:
-                actor = Actor.actor_registry[actor_id]
-                if hasattr(actor, method_name):
-                    method = getattr(actor, method_name)
-                    method(*args)  # Pass arguments to the method
-                else:
-                    print(f"Actor {actor_id} does not have a method named {method_name}.")
-            else:
-                print(f"Actor {actor_id} not found.")
+        parts = user_input.split(' ')
+        command = parts[0]
+
+        if command == "invoke":
+            if len(parts) < 3:
+                print("Usage: invoke <method_name> [params...]")
+                return
+            _, method_name, *params = parts
+            if not hasattr(self, method_name):
+                print(f"Actor {self.id} does not have a method named {method_name}.")
+                return
+            
+            method = getattr(self, method_name)
+            if method_name == "send": 
+                host, port, *message= params
+                sendable = ''
+                for word in message:
+                    sendable+=' ' + word
+                method(host, port, sendable)
+            
         else:
-            print("Invalid command. Use 'send <recipient_id> <message>' or 'invoke <actor_id> <method_name> [args...]'.")
+            print("Invalid command. Use 'send <message> <actor_id> to <address:port>' or 'invoke <actor_id> <method_name> [params]'.")
 
     def handle_connection(self, conn):
         with conn:
@@ -78,9 +76,6 @@ class Actor:
         print(f"Inbox of Actor {self.id}:")
         for message in self.inbox:
             print(message)
-
-    def custom_method(self, *args):
-        print(f"Custom method executed in Actor {self.id} with arguments: {args}")
 
 class Message:
     def __init__(self, content):
