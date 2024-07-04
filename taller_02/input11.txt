@@ -1,0 +1,8 @@
+begin {
+int mat[3][4];
+float fmat[2][2];
+mat[1][2] = 15;
+fmat[0][1] = 2.71;
+print(mat[1][2]);
+print(fmat[0][1]);
+}

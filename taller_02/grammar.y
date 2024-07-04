@@ -10,14 +10,17 @@ extern FILE *yyin;              // Archivo de entrada
 // Estructura para almacenar las variables
 typedef struct Var {
     char *name; // Nombre de la variable
-    int type; // 0 para int, 1 para float, 2 para arreglo de int, 3 para arreglo de float
+    int type; // 0 para int, 1 para float, 2 para arreglo de int, 3 para arreglo de float, 4 para arreglo bidimensional de int, 5 para arreglo bidimensional de float
     union { // Unión para almacenar el valor de la variable
         int ival;
         double fval;
         int *iarr;    // Puntero para arreglo de int
         double *farr; // Puntero para arreglo de float
+        int **iarr2d; // Puntero para arreglo bidimensional de int
+        double **farr2d; // Puntero para arreglo bidimensional de float
     } value;
-    int size; // Tamaño del arreglo (si aplica)
+    int size1; // Primer tamaño del arreglo (si aplica)
+    int size2; // Segundo tamaño del arreglo (si aplica)
 } Var;
 
 Var variables[100]; // Hasta 100 variables
@@ -48,7 +51,7 @@ int get_var_index(char *name) {
 %token ASSIGN
 %token TBEGIN TEND
 %token PRINT
-%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON
+%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON COMMA
 
 %type <fval> expression
 
@@ -92,7 +95,7 @@ statement:
     | INT IDENTIFIER LBRACKET INT_NUMBER RBRACKET SEMICOLON {
             variables[var_count].name = $2;
             variables[var_count].type = 2; // Inicializa la variable como arreglo de int
-            variables[var_count].size = $4; // Tamaño del arreglo
+            variables[var_count].size1 = $4; // Tamaño del arreglo
             variables[var_count].value.iarr = (int *)malloc($4 * sizeof(int)); // Asigna memoria para el arreglo
             for (int i = 0; i < $4; i++) {
                 variables[var_count].value.iarr[i] = 0; // Inicializa los elementos a 0
@@ -104,13 +107,45 @@ statement:
     | FLOAT IDENTIFIER LBRACKET INT_NUMBER RBRACKET SEMICOLON {
             variables[var_count].name = $2;
             variables[var_count].type = 3; // Inicializa la variable como arreglo de float
-            variables[var_count].size = $4; // Tamaño del arreglo
+            variables[var_count].size1 = $4; // Tamaño del arreglo
             variables[var_count].value.farr = (double *)malloc($4 * sizeof(double)); // Asigna memoria para el arreglo
             for (int i = 0; i < $4; i++) {
                 variables[var_count].value.farr[i] = 0.0; // Inicializa los elementos a 0.0
             }
             var_count++;
             printf("Arreglo tipo float declarado: %s[%d]\n", $2, $4);
+        }
+    // int arr[5][10];
+    | INT IDENTIFIER LBRACKET INT_NUMBER RBRACKET LBRACKET INT_NUMBER RBRACKET SEMICOLON {
+            variables[var_count].name = $2;
+            variables[var_count].type = 4; // Inicializa la variable como arreglo bidimensional de int
+            variables[var_count].size1 = $4; // Primer tamaño del arreglo
+            variables[var_count].size2 = $7; // Segundo tamaño del arreglo
+            variables[var_count].value.iarr2d = (int **)malloc($4 * sizeof(int *)); // Asigna memoria para el arreglo
+            for (int i = 0; i < $4; i++) {
+                variables[var_count].value.iarr2d[i] = (int *)malloc($7 * sizeof(int)); // Asigna memoria para cada fila
+                for (int j = 0; j < $7; j++) {
+                    variables[var_count].value.iarr2d[i][j] = 0; // Inicializa los elementos a 0
+                }
+            }
+            var_count++;
+            printf("Arreglo bidimensional tipo int declarado: %s[%d][%d]\n", $2, $4, $7);
+        }
+    // float arr[5][10];
+    | FLOAT IDENTIFIER LBRACKET INT_NUMBER RBRACKET LBRACKET INT_NUMBER RBRACKET SEMICOLON {
+            variables[var_count].name = $2;
+            variables[var_count].type = 5; // Inicializa la variable como arreglo bidimensional de float
+            variables[var_count].size1 = $4; // Primer tamaño del arreglo
+            variables[var_count].size2 = $7; // Segundo tamaño del arreglo
+            variables[var_count].value.farr2d = (double **)malloc($4 * sizeof(double *)); // Asigna memoria para el arreglo
+            for (int i = 0; i < $4; i++) {
+                variables[var_count].value.farr2d[i] = (double *)malloc($7 * sizeof(double)); // Asigna memoria para cada fila
+                for (int j = 0; j < $7; j++) {
+                    variables[var_count].value.farr2d[i][j] = 0.0; // Inicializa los elementos a 0.0
+                }
+            }
+            var_count++;
+            printf("Arreglo bidimensional tipo float declarado: %s[%d][%d]\n", $2, $4, $7);
         }
     // x = 2;
     | IDENTIFIER ASSIGN expression SEMICOLON {
@@ -133,14 +168,14 @@ statement:
             yyerror("La variable no está declarada");
         } else {
             if (variables[index].type == 2) { // Arreglo de int
-                if ($3 < 0 || $3 >= variables[index].size) {
+                if ($3 < 0 || $3 >= variables[index].size1) {
                     yyerror("Índice fuera de rango");
                 } else {
                     variables[index].value.iarr[$3] = (int)$6;
                     printf("Valor %d asignado a %s[%d]\n", (int)$6, $1, $3);
                 }
             } else if (variables[index].type == 3) { // Arreglo de float
-                if ($3 < 0 || $3 >= variables[index].size) {
+                if ($3 < 0 || $3 >= variables[index].size1) {
                     yyerror("Índice fuera de rango");
                 } else {
                     variables[index].value.farr[$3] = $6;
@@ -148,6 +183,31 @@ statement:
                 }
             } else {
                 yyerror("La variable no es un arreglo");
+            }
+        }
+      }
+    // arr[2][3] = 5;
+    | IDENTIFIER LBRACKET INT_NUMBER RBRACKET LBRACKET INT_NUMBER RBRACKET ASSIGN expression SEMICOLON {
+        int index = get_var_index($1);
+        if (index == -1) {
+            yyerror("La variable no está declarada");
+        } else {
+            if (variables[index].type == 4) { // Arreglo bidimensional de int
+                if ($3 < 0 || $3 >= variables[index].size1 || $6 < 0 || $6 >= variables[index].size2) {
+                    yyerror("Índice fuera de rango");
+                } else {
+                    variables[index].value.iarr2d[$3][$6] = (int)$9;
+                    printf("Valor %d asignado a %s[%d][%d]\n", (int)$9, $1, $3, $6);
+                }
+            } else if (variables[index].type == 5) { // Arreglo bidimensional de float
+                if ($3 < 0 || $3 >= variables[index].size1 || $6 < 0 || $6 >= variables[index].size2) {
+                    yyerror("Índice fuera de rango");
+                } else {
+                    variables[index].value.farr2d[$3][$6] = $9;
+                    printf("Valor %f asignado a %s[%d][%d]\n", $9, $1, $3, $6);
+                }
+            } else {
+                yyerror("La variable no es un arreglo bidimensional");
             }
         }
       }
@@ -180,14 +240,14 @@ expression:
             $$ = 0; // Valor por defecto en caso de error
         } else {
             if (variables[index].type == 2) { // Arreglo de int
-                if ($3 < 0 || $3 >= variables[index].size) {
+                if ($3 < 0 || $3 >= variables[index].size1) {
                     yyerror("Índice fuera de rango");
                     $$ = 0;
                 } else {
                     $$ = variables[index].value.iarr[$3];
                 }
             } else if (variables[index].type == 3) { // Arreglo de float
-                if ($3 < 0 || $3 >= variables[index].size) {
+                if ($3 < 0 || $3 >= variables[index].size1) {
                     yyerror("Índice fuera de rango");
                     $$ = 0.0;
                 } else {
@@ -195,6 +255,33 @@ expression:
                 }
             } else {
                 yyerror("La variable no es un arreglo");
+                $$ = 0;
+            }
+        }
+      }
+    // arr[2][3]
+    | IDENTIFIER LBRACKET INT_NUMBER RBRACKET LBRACKET INT_NUMBER RBRACKET {
+        int index = get_var_index($1);
+        if (index == -1) {
+            yyerror("La variable no está declarada");
+            $$ = 0; // Valor por defecto en caso de error
+        } else {
+            if (variables[index].type == 4) { // Arreglo bidimensional de int
+                if ($3 < 0 || $3 >= variables[index].size1 || $6 < 0 || $6 >= variables[index].size2) {
+                    yyerror("Índice fuera de rango");
+                    $$ = 0;
+                } else {
+                    $$ = variables[index].value.iarr2d[$3][$6];
+                }
+            } else if (variables[index].type == 5) { // Arreglo bidimensional de float
+                if ($3 < 0 || $3 >= variables[index].size1 || $6 < 0 || $6 >= variables[index].size2) {
+                    yyerror("Índice fuera de rango");
+                    $$ = 0.0;
+                } else {
+                    $$ = variables[index].value.farr2d[$3][$6];
+                }
+            } else {
+                yyerror("La variable no es un arreglo bidimensional");
                 $$ = 0;
             }
         }
