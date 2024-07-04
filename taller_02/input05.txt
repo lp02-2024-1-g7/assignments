@@ -1,12 +1,5 @@
-begin
-
-// Calcular el promedio de rachas por celda (simplificado para el ejemplo)
-float P_ij[3][3];
-for (i = 0; i < 3; i = i + 1) {
-    for (j = 0; j < 3; j = j + 1) {
-        P_ij[i][j] = cast(float,R_ij[i][j]) / cast(float,matrix[i][j]);
-        print(P_ij[i][j]);
-    }
+begin {
+float b;
+b = 3.5;
+print(b);
 }
-
-end

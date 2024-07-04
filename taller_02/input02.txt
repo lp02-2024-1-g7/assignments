@@ -1,11 +1,4 @@
-begin
-
-int a = 5;
-
-for (i = 0; i < 3; i = i + 1) {
-    print(i);
+begin {
+int a;
+float b;
 }
-
-print(a);
-
-end
