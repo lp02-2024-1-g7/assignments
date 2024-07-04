@@ -1,59 +1,18 @@
 %{
 #include "grammar.tab.h"
+#include <stdio.h>
+
+void yyerror(const char *s);
 %}
 
-DIGIT               [0-9]
-LETTER              [a-zA-Z_]
-IDENTIFIER          {LETTER}({LETTER}|{DIGIT})*
-FLOAT_NUMBER        ({DIGIT}+"."{DIGIT}*|{DIGIT}*"."{DIGIT}+)
-INTEGER             {DIGIT}+
-
 %%
-
-"//".*  {/* Ignore single-line comments */}
-
-"begin"                { return BEGIN_PROGRAM; }
-"end"                  { return END_PROGRAM; }
-"int"                  { return INT; }
-"float"                { return FLOAT; }
-"if"                   { return IF; }
-"else"                 { return ELSE; }
-"for"                  { return FOR; }
-"while"                { return WHILE; }
-"print"                { return PRINT; }
-"read"                 { return READ; }
-"cast"                 { return CAST_FUNC; }
-
-{IDENTIFIER}           { yylval.str = strdup(yytext); return IDENTIFIER; }
-{FLOAT_NUMBER}         { yylval.num = atof(yytext); return NUMBER; }
-{INTEGER}              { yylval.num = atoi(yytext); return NUMBER; }
-
-"="                    { return ASSIGN; }
-";"                    { return SEMICOLON; }
-"("                    { return LPAREN; }
-")"                    { return RPAREN; }
-"{"                    { return LBRACE; }
-"}"                    { return RBRACE; }
-"["                    { return LBRACKET; }
-"]"                    { return RBRACKET; }
-"<"                    { return LT; }
-">"                    { return GT; }
-"+"                    { return PLUS; }
-"-"                    { return MINUS; }
-"*"                    { return MULT; }
-"/"                    { return DIV; }
-"=="                   { return EQ; }
-"!="                   { return NEQ; }
-"<="                   { return LEQ; }
-">="                   { return GEQ; }
-","                    { return COMMA; }
-"\""                   { return QUOTE; }
-
-[ \t\n]+               { /* skip whitespace */ }
-.                      { printf("Unexpected character: %s\n", yytext); }
-
+"begin"         { return TBEGIN; }
+"end"           { return TEND; }
+"print"         { return PRINT; }
+[0-9]+          { yylval.ival = atoi(yytext); return NUMBER; }
+"("             { return LPAREN; }
+")"             { return RPAREN; }
+";"             { return SEMICOLON; }
+[ \t\n\r]+      ;  // Ignorar espacios en blanco y saltos de línea: LF `\n` y CRLF `\r\n`
+.               { yyerror("Unexpected character"); }
 %%
-
-int yywrap() {
-    return 1;
-}

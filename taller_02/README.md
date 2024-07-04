@@ -27,7 +27,7 @@ sudo apt-get install flex
 sudo apt-get install gcc
 sudo apt-get install bison
 ```
-
+source ~/.bashrc
 ## Compilación
 
 1. **Generar el analizador léxico**:
