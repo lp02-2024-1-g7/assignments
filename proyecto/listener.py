@@ -83,7 +83,7 @@ class MyActorLangListener(ActorLangParserListener):
             if action[0] == "send":
                 _action, sender_name, recipient_name, message, recipient_address, port = action
                 sender = self.actors[sender_name]
-                sender.send(recipient_address, port, Message(message))
+                sender.send(recipient_address, port, message)
                 print(f'Message sent to {recipient_name}')
             elif action[0] == "start":
                 port = action[2]
