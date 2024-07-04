@@ -1,9 +1,0 @@
-begin
-
-int i = 0
-
-if (i < 3) {
-    print(i);
-}
-
-end

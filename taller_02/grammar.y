@@ -126,6 +126,31 @@ statement:
             printf("Valor asignado a la variable %s\n", $1);
         }
       }
+    // arr[2] = 5;
+    | IDENTIFIER LBRACKET INT_NUMBER RBRACKET ASSIGN expression SEMICOLON {
+        int index = get_var_index($1);
+        if (index == -1) {
+            yyerror("La variable no está declarada");
+        } else {
+            if (variables[index].type == 2) { // Arreglo de int
+                if ($3 < 0 || $3 >= variables[index].size) {
+                    yyerror("Índice fuera de rango");
+                } else {
+                    variables[index].value.iarr[$3] = (int)$6;
+                    printf("Valor %d asignado a %s[%d]\n", (int)$6, $1, $3);
+                }
+            } else if (variables[index].type == 3) { // Arreglo de float
+                if ($3 < 0 || $3 >= variables[index].size) {
+                    yyerror("Índice fuera de rango");
+                } else {
+                    variables[index].value.farr[$3] = $6;
+                    printf("Valor %f asignado a %s[%d]\n", $6, $1, $3);
+                }
+            } else {
+                yyerror("La variable no es un arreglo");
+            }
+        }
+      }
     ;
 
 expression:
@@ -141,6 +166,33 @@ expression:
                 $$ = variables[index].value.ival;
             } else {
                 $$ = variables[index].value.fval;
+            }
+        }
+      }
+    // arr[2]
+    | IDENTIFIER LBRACKET INT_NUMBER RBRACKET {
+        int index = get_var_index($1);
+        if (index == -1) {
+            yyerror("La variable no está declarada");
+            $$ = 0; // Valor por defecto en caso de error
+        } else {
+            if (variables[index].type == 2) { // Arreglo de int
+                if ($3 < 0 || $3 >= variables[index].size) {
+                    yyerror("Índice fuera de rango");
+                    $$ = 0;
+                } else {
+                    $$ = variables[index].value.iarr[$3];
+                }
+            } else if (variables[index].type == 3) { // Arreglo de float
+                if ($3 < 0 || $3 >= variables[index].size) {
+                    yyerror("Índice fuera de rango");
+                    $$ = 0.0;
+                } else {
+                    $$ = variables[index].value.farr[$3];
+                }
+            } else {
+                yyerror("La variable no es un arreglo");
+                $$ = 0;
             }
         }
       }
