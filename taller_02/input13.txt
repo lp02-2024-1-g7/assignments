@@ -1,0 +1,22 @@
+begin {
+int a;
+int b;
+float c;
+float d;
+a = 5;
+b = 10;
+c = 3.14;
+d = 2.71;
+print(a + b);
+print(a - b);
+print(c * d);
+print(c / d);
+print(a < b);
+print(a > b);
+print(c >= d);
+print(c <= d);
+print(a == b);
+print(a != b);
+print(c == d || a == b);
+print(c == d && a == b);
+}

@@ -44,7 +44,8 @@ int get_var_index(char *name) {
     char *sval;
 } // Unión para almacenar el valor del token
 
-%token <ival> INT_NUMBER
+// %token sirve para definir los tokens. %token <tipo> token1 token2 ... tokenN
+%token <ival> INT_NUMBER 
 %token <fval> FLOAT_NUMBER
 %token <sval> IDENTIFIER
 %token INT FLOAT
@@ -53,7 +54,16 @@ int get_var_index(char *name) {
 %token PRINT
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON COMMA
 
+// %type sirve para definir el tipo de retorno de las reglas. %type <tipo> regla1 regla2 ... reglaN
 %type <fval> expression
+
+// %left, %right, %nonassoc sirve para definir la precedencia de los operadores
+%left '+' '-'
+%left '*' '/'
+%left LT GT LE GE EQ NE
+%left AND OR
+
+// Los operadores como '+' no son tokens, pero se pueden usar en las reglas
 
 %%
 
@@ -285,6 +295,64 @@ expression:
                 $$ = 0;
             }
         }
+      }
+    // 1 + 2
+    | expression '+' expression {
+        $$ = $1 + $3;
+      }
+    // 3 - 2
+    | expression '-' expression {
+        $$ = $1 - $3;
+      }
+    // 2 * 3
+    | expression '*' expression {
+        $$ = $1 * $3;
+      }
+    // 6 / 3
+    | expression '/' expression {
+        if ($3 == 0) { // Evita la división por cero
+            yyerror("División por cero");
+            $$ = 0;
+        } else {
+            $$ = $1 / $3;
+        }
+      }
+    // expresiones lógicas
+    // 1 < 2
+    | expression LT expression {
+        $$ = $1 < $3;
+      }
+    // 2 > 1
+    | expression GT expression {
+        $$ = $1 > $3;
+      }
+    // 1 <= 2
+    | expression LE expression {
+        $$ = $1 <= $3;
+      }
+    // 2 >= 1
+    | expression GE expression {
+        $$ = $1 >= $3;
+      }
+    // 1 == 1
+    | expression EQ expression {
+        $$ = $1 == $3;
+      }
+    // 1 != 2
+    | expression NE expression {
+        $$ = $1 != $3;
+      }
+    // 1 && 0
+    | expression AND expression {
+        $$ = $1 && $3;
+      }
+    // 1 || 0
+    | expression OR expression {
+        $$ = $1 || $3;
+      }
+    // (1 + 2)
+    | '(' expression ')' {
+        $$ = $2;
       }
     ;
 

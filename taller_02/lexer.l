@@ -30,6 +30,23 @@ INTEGER             {DIGIT}+
 "]"                     { return RBRACKET; }
 "="                     { return ASSIGN; }
 ";"                     { return SEMICOLON; }
+","                     { return COMMA; }
+
+"+"                     { return '+'; } // Operador de suma
+"-"                     { return '-'; } // Operador de resta
+"*"                     { return '*'; } // Operador de multiplicación
+"/"                     { return '/'; } // Operador de división
+
+"<"                     { return LT; } // Operador de comparación menor que
+">"                     { return GT; } // Operador de comparación mayor que
+"<="                    { return LE; } // Operador de comparación menor o igual que
+">="                    { return GE; } // Operador de comparación mayor o igual que
+"=="                    { return EQ; } // Operador de comparación igual que
+"!="                    { return NE; } // Operador de comparación diferente que
+
+"&&"                    { return AND; } // Operador lógico AND
+"||"                    { return OR; } // Operador lógico OR
+
 [ \t\n\r]+              ;  // Ignorar espacios en blanco y saltos de línea: LF `\n` y CRLF `\r\n`
 .                       { yyerror("Unexpected character"); }
 %%
