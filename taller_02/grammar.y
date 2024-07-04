@@ -154,8 +154,11 @@ statement:
     ;
 
 expression:
+    // 666
     INT_NUMBER { $$ = $1; }
+    // 3.14
     | FLOAT_NUMBER { $$ = $1; }
+    // foo
     | IDENTIFIER {
         int index = get_var_index($1);
         if (index == -1) {
@@ -213,6 +216,6 @@ int main(int argc, char **argv) {
         }
         yyin = file;
     }
-    yyparse();
-    return 0;
+    yyparse(); // Llama al parser
+    return 0; // Termina el programa
 }
