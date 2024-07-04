@@ -27,9 +27,10 @@ class Actor:
                         ack_message = ack_data.decode('utf-8')
                         print(f"Actor {self.id} received acknowledgment from port {port}: {ack_message}")
             except (socket.timeout, ConnectionRefusedError):
-                print(f"Actor {self.id} did not find actor on port {port}")
+                print(f"{self.id} did not find actor on port {port}")
             except Exception as e:
                 print(f"Error sending broadcast message from Actor {self.id} to port {port}: {e}")
+
     def send(self, host, port, message):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

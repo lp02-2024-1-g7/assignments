@@ -1,0 +1,6 @@
+actor Actor3 {
+    port = 9092;
+    on "init" -> {
+        start("9092", Actor3);
+    }
+}
